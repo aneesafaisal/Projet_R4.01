@@ -1,12 +1,13 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/Psr4AutoloaderClass.php';
+require_once __DIR__ . '/Psr4AutoloaderClass.php';
 use R301\Psr4AutoloaderClass;
 
 $loader = new Psr4AutoloaderClass;
 // register the autoloader
 $loader->register();
 // register the base directories for the namespace prefix
-$loader->addNamespace('R301', '.');
+$loader->addNamespace('R301', __DIR__ . '/BACKEND');
+$loader->addNamespace('R301', __DIR__ . '/FRONTEND');
 
 if (preg_match('/\.(?:png|jpg|jpeg|gif|ico|css|js)\??.*$/', $_SERVER["REQUEST_URI"])) {
     return false; // serve the requested resource as-is.
@@ -47,7 +48,11 @@ if ($_SERVER["REQUEST_URI"] !== "/login" && !isset($_SESSION ['username'])) {
         </nav>
     <?php endif; ?>
     <?php
-        require_once './Vue' . strtok($_SERVER["REQUEST_URI"],'?') . '.php';
+        $uri = strtok($_SERVER["REQUEST_URI"], '?');
+        if ($uri === '/' || $uri === '/index.php') {
+            $uri = '/tableauDeBord';
+        }
+        require_once __DIR__ . '/FRONTEND/Vue' . $uri . '.php';
     } ?>
     </body>
 </html>

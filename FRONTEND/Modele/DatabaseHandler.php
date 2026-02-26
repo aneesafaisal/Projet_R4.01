@@ -17,8 +17,8 @@ class DatabaseHandler {
         try{
             $this->server = "localhost";
             $this->db = "r301";
-            $this->login = "r301";
-            $this->mdp = "7z3AgWdX54Zkq5!";
+            $this->login = "root";
+            $this->mdp = "";
             $this->linkpdo=new PDO("mysql:host=".$this->server.";dbname=".$this->db,$this->login,$this->mdp);
         }catch(Exception $e){
             die("Erreur : ".$e->getMessage());

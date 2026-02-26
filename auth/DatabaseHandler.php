@@ -16,7 +16,7 @@ class DatabaseHandler {
     private function __construct(){
         try{
             $this->server = "localhost";
-            $this->db = "r301";
+            $this->db = "r301_auth";
             $this->login = "root";
             $this->mdp = "";
             $this->linkpdo=new PDO("mysql:host=".$this->server.";dbname=".$this->db,$this->login,$this->mdp);
