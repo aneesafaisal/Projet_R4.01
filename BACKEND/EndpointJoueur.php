@@ -1,4 +1,12 @@
 <?php
+    require_once 'Psr4AutoloaderClass.php';
+
+    use R301\Psr4AutoloaderClass;
+
+    $loader = new Psr4AutoloaderClass();
+    $loader->register();
+    $loader->addNamespace('R301', __DIR__);
+
     use R301\Controleur\JoueurControleur;
     use R301\Modele\Joueur\Joueur;
     use R301\Modele\Joueur\JoueurDAO;
