@@ -16,9 +16,9 @@ class DatabaseHandler {
     private function __construct(){
         try{
             $this->server = "localhost";
-            $this->db = "r301_auth";
-            $this->login = "root";
-            $this->mdp = "";
+            $this->db = "r401_auth";
+            $this->login = "admin";
+            $this->mdp = "adminabc";
             $this->linkpdo=new PDO("mysql:host=".$this->server.";dbname=".$this->db,$this->login,$this->mdp);
         }catch(Exception $e){
             die("Erreur : ".$e->getMessage());
@@ -33,7 +33,7 @@ class DatabaseHandler {
         return self::$instance;
     }
 
-    public function pdo(): PDO {
+    public function getLinkpdo(): PDO {
         return $this->linkpdo;
     }
 }
