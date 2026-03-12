@@ -129,10 +129,10 @@ class Joueur implements \JsonSerializable{
             'nom'               => $this->getNom(),
             'prenom'            => $this->getPrenom(),
             'numeroDeLicence'   => $this->getNumeroDeLicence(),
-            'dateDeNaissance'   => $this->getDateDeNaissance()->format('Y-m-d'), // format lisible
+            'dateDeNaissance'   => $this->getDateDeNaissance()->format('Y-m-d'), 
             'tailleEnCm'        => $this->getTailleEnCm(),
             'poidsEnKg'         => $this->getPoidsEnKg(),
-            'statut'            => $this->getStatut()->name,   // ou ->value si tu utilises un Enum PHP 8.1+
+            'statut'            => $this->getStatut()->name,   
         ];
     }
 }

@@ -142,7 +142,7 @@ try {
             $delete = $controleur->supprimerJoueur($id);
 
             if ($delete === true) {
-                deliver_response(204, "La requête a réussi.");
+                deliver_response(200, "La requête a réussi.");
             } else {
                 deliver_response(404, "Joueur non trouvé");
             }

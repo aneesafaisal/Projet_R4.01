@@ -56,7 +56,7 @@ try {
             deliver_response(200, "La requête a réussi", $rencontres);
             break;
 
-        case 'POST': // CREATE
+        case 'POST': 
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data || !isset($data['dateHeure'], $data['equipeAdverse'], $data['adresse'], $data['lieu'])) {
                 deliver_response(400, "JSON invalide ou champs manquants");
@@ -72,13 +72,14 @@ try {
                 $lieu
             );
 
-            deliver_response(
-                $success ? 201 : 400,
-                $success ? "Rencontre créée avec succès" : "Erreur lors de la création (date déjà passée ou autre)"
-            );
+            if ($success){
+                deliver_response(201,  "Rencontre créée avec succès");
+            } else {
+                deliver_response(400, "Erreur lors de la création (date déjà passée ou autre)");
+            }
             break;
 
-        case 'PUT': // UPDATE (détails avant le match)
+        case 'PUT':
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
@@ -101,13 +102,14 @@ try {
                 $id, $dateHeure, $data['equipeAdverse'], $data['adresse'], $lieu
             );
 
-            deliver_response(
-                $success ? 200 : 400,
-                $success ? "Rencontre mise à jour" : "Erreur lors de la mise à jour (match déjà passé ou date invalide)"
-            );
+            if ($success){
+                deliver_response(200,  "Rencontre mise à jour");
+            } else {
+                deliver_response(400, "Erreur lors de la mise à jour (match déjà passé ou date invalide)");
+            }
             break;
 
-        case 'PATCH': // ENREGISTRER RÉSULTAT (action spécifique)
+        case 'PATCH': // On l'utilise pour enregistrer le resultat
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
@@ -125,10 +127,11 @@ try {
 
             $success = $controleur->enregistrerResultat($id, $data['resultat']);
 
-            deliver_response(
-                $success ? 200 : 400,
-                $success ? "Résultat enregistré avec succès" : "Erreur (match non passé ou déjà enregistré)"
-            );
+            if ($success){
+                deliver_response(200,  "Résultat enregistré avec succès");
+            } else {
+                deliver_response(400, "Erreur (match non passé ou déjà enregistré)");
+            }
             break;
 
         case 'DELETE':
@@ -144,10 +147,11 @@ try {
 
             $success = $controleur->supprimerRencontre($id);
 
-            deliver_response(
-                $success ? 200 : 400,
-                $success ? "Rencontre supprimée avec succès" : "Impossible de supprimer (résultat déjà enregistré)"
-            );
+            if ($success){
+                deliver_response(200,  "Rencontre supprimée avec succès");
+            } else {
+                deliver_response(400, "Impossible de supprimer (résultat déjà enregistré)");
+            }
             break;
 
         default:
@@ -156,3 +160,4 @@ try {
 } catch (Throwable $e) {
     deliver_response(500, "Erreur serveur : " . $e->getMessage());
 }
+?>

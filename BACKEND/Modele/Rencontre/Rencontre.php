@@ -105,11 +105,11 @@ class Rencontre implements \JsonSerializable{
     {
         return [
             'rencontreId'     => $this->getRencontreId(),
-            'dateEtHeure'     => $this->getDateEtHeure()->format('Y-m-d H:i:s'), // format complet car c’est une date+heure
+            'dateEtHeure'     => $this->getDateEtHeure()->format('Y-m-d H:i:s'), 
             'equipeAdverse'   => $this->getEquipeAdverse(),
             'adresse'         => $this->getAdresse(),
-            'lieu'            => $this->getLieu()?->name,      // null-safe + .name comme dans Joueur
-            'resultat'        => $this->getResultat()?->name   // null-safe + .name
+            'lieu'            => $this->getLieu()?->name,      
+            'resultat'        => $this->getResultat()?->name   
         ];
     }
 }
