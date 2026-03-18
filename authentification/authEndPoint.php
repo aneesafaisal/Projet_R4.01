@@ -7,6 +7,23 @@ $http_method=$_SERVER['REQUEST_METHOD'];
 $postedData = file_get_contents('php://input');
 $data = json_decode($postedData,TRUE);
 
+switch ($http_method) {
+    case 'OPTIONS':
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: POST, GET");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+        http_response_code(204); // No content
+        break;
+    case 'POST':
+        if ($data == null) {
+            
+        }
+    
+    default:
+        send_json_response(405, "Méthode non autorisée");
+        break;
+}
+
 class UtilisateurControleur {
     private static ?UtilisateurControleur $instance = null;
     private readonly UtilisateurDAO $utilisateurs;
