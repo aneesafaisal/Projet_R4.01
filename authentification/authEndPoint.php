@@ -8,45 +8,70 @@ $postedData = file_get_contents('php://input');
 $data = json_decode($postedData,TRUE);
 
 switch ($http_method) {
+
     case 'OPTIONS':
         header("Access-Control-Allow-Origin: *");
         header("Access-Control-Allow-Methods: POST, GET");
         header("Access-Control-Allow-Headers: Content-Type, Authorization");
-        http_response_code(204); // No content
+        http_response_code(204); 
         break;
+
     case 'POST':
         if ($data == null) {
-            
+            delivrer_reponse("Bad Request", 400, "Bad Request");
+        } else if (array_key_exists('login', $data) && array_key_exists('password', $data)) {
+            generateToken();
+        } else {
+            delivrer_reponse("Bad Request", 400, "Bad Request");
         }
-    
+        break;
+
+    case 'GET':
+        if ($data == null || empty($data)) {
+            delivrer_reponse("Bad Request", 400, "Bad Request");
+        } else {
+            verifyToken();
+        }
+        break;
     default:
-        send_json_response(405, "Méthode non autorisée");
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: POST, GET");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+        http_response_code(405);
+        header("Allow: POST");
         break;
 }
 
-class UtilisateurControleur {
-    private static ?UtilisateurControleur $instance = null;
-    private readonly UtilisateurDAO $utilisateurs;
+function generateToken() {
 
-    private function __construct() {
-        $this->utilisateurs = UtilisateurDAO::getInstance();
-    }
+    $postedData = file_get_contents('php://input');
+    $data = json_decode($postedData,TRUE);
 
-    public static function getInstance(): UtilisateurControleur {
-        if (self::$instance == null) {
-            self::$instance = new UtilisateurControleur();
+    if (empty($data['login']) || empty($data['password'])) {
+        delivrer_reponse("Bad Request", 400, "Bad Request");
+    } else {
+        if (estValide($data['login'], $data['password'])) {
+            $username = $data['login'];
+            $payload = array('username'=>$username, 'exp'=>(time()+600),'role'=>getRole($username));
+            $jwt = generate_jwt($headers,$payload,"asdfghjklzxcvbnm123456789");
+            delivrer_reponse("Success",200,"Authentification OK", $jwt);
+        } else {
+            delivrer_reponse("Unauthorized", 401, "Unauthorized");
         }
-        return self::$instance;
     }
-
-    public function seConnecter(string $username, string $password): ?string {
-    $utilisateur = $this->utilisateurs->getUtilisateur($username);
-    if ($utilisateur && $utilisateur->getMotDePasse() === hash('sha256', $password)) {
-        return generateJWT(
-            ['username' => $username, 'exp' => time() + 3600],
-            "votre_secret_jwt"
-        );
-    }
-    return null;
 }
+
+
+function verifyToken() {
+    $bearer_token = '';
+    $bearer_token = get_bearer_token();
+    if (empty($bearer_token)) {
+        delivrer_reponse("Invalid token", 401, "Invalid token",$bearer_token);
+    } else {
+        if (is_jwt_valid($bearer_token, "asdfghjklzxcvbnm123456789")) {
+            delivrer_reponse("Success", 200, "Token is valid");
+        } else {
+            delivrer_reponse("Error", 401, "Invalid token");
+        }
+    }
 }
