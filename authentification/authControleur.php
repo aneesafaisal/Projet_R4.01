@@ -1,40 +1,32 @@
-<?php d
+<?php
 
-namespace R301\Controleur;
+include_once "DatabaseHandler.php";
 
-use DateTime;
-use R301\Modele\Joueur\Commentaire\Commentaire;
-use R301\Modele\Joueur\Commentaire\CommentaireDAO;
-use R301\Modele\Joueur\Joueur;
-use R301\Modele\Joueur\JoueurDAO;
-use R301\Modele\Joueur\JoueurStatut;
-use R301\Modele\Statistiques\StatistiquesEquipe;
-use R301\Modele\Statistiques\StatistiquesJoueurs;
-use R301\Modele\Utilisateur\UtilisateurDAO;
-
-class UtilisateurControleur {
-    private static ?UtilisateurControleur $instance = null;
-    private readonly UtilisateurDAO $utilisateurs;
-
-    private function __construct() {
-        $this->utilisateurs = UtilisateurDAO::getInstance();
+function estValide($login,$password) {
+    $db = DatabaseHandler::getInstance()->getLinkpdo();
+    $query = "SELECT * FROM user WHERE login = :login";
+    $req = $db->prepare($query);
+    try {
+        $req->execute(array('login'=>$login));
+    } catch (Exception $e) {
+        return false;
     }
-
-    public static function getInstance(): UtilisateurControleur {
-        if (self::$instance == null) {
-            self::$instance = new UtilisateurControleur();
-        }
-        return self::$instance;
+    if ($req->rowCount()==0) {
+        return false;
     }
-
-    public function seConnecter(string $username, string $password): ?string {
-    $utilisateur = $this->utilisateurs->getUtilisateur($username);
-    if ($utilisateur && $utilisateur->getMotDePasse() === hash('sha256', $password)) {
-        return generateJWT(
-            ['username' => $username, 'exp' => time() + 3600],
-            "votre_secret_jwt"
-        );
-    }
-    return null;
+    $user = $req->fetch();
+    return password_verify($password, $user['password']);
 }
+
+function getRole($login) {
+    $db = DatabaseHandler::getInstance()->getLinkpdo();
+    $query = "SELECT role FROM user WHERE login = :login";
+    $req = $db->prepare($query);
+    $req->execute(array('login'=>$login));
+    $user = $req->fetch();
+    return $user['role'];
 }
+
+
+
+

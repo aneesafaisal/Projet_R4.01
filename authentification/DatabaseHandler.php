@@ -1,10 +1,5 @@
 <?php
 
-namespace R301\Modele;
-
-use Exception;
-use PDO;
-
 class DatabaseHandler {
     private static ?DatabaseHandler $instance = null;
     private readonly PDO $linkpdo;
@@ -15,8 +10,8 @@ class DatabaseHandler {
 
     private function __construct(){
         try{
-            $this->server = "localhost";
-            $this->db = "r301_auth";
+            $this->server = "127.0.0.1";
+            $this->db = "r401_auth";
             $this->login = "root";
             $this->mdp = "";
             $this->linkpdo=new PDO("mysql:host=".$this->server.";dbname=".$this->db,$this->login,$this->mdp);
@@ -33,7 +28,7 @@ class DatabaseHandler {
         return self::$instance;
     }
 
-    public function pdo(): PDO {
+    public function getLinkpdo(): PDO {
         return $this->linkpdo;
     }
 }
