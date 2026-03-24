@@ -1,6 +1,12 @@
 <?php
+require_once '../Psr4AutoloaderClass.php';
 
+use R301\Psr4AutoloaderClass;
 use R301\Controleur\JoueurControleur;
+
+$loader = new Psr4AutoloaderClass();
+$loader->register();
+$loader->addNamespace('R301', __DIR__ . '/../../FRONTEND');
 
 $controleur = JoueurControleur::getInstance();
 if (isset($_GET['recherche']) || isset($_GET['statut'])) {
