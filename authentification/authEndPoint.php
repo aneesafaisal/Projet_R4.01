@@ -44,7 +44,6 @@ switch ($http_method) {
 }
 
 function generateToken() {
-    
     global $clefSecrete; 
     $headers = ['alg' => 'HS256', 'typ' => 'JWT'];
     $postedData = file_get_contents('php://input');
@@ -66,6 +65,7 @@ function generateToken() {
 
 
 function verifyToken() {
+    global $clefSecrete;
     $bearer_token = '';
     $bearer_token = get_bearer_token();
     if (empty($bearer_token)) {
