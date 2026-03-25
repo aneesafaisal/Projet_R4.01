@@ -66,8 +66,8 @@ class RencontreDAO {
         $statement->bindValue(':date_heure', $rencontreACreer->getDateEtHeure()->format('Y-m-d H:i:s'));
         $statement->bindValue(':equipe_adverse', $rencontreACreer->getEquipeAdverse());
         $statement->bindValue(':adresse', $rencontreACreer->getAdresse());
-        $statement->bindValue(':lieu', $rencontreACreer->getLieu()->name);
-        $statement->bindValue(':resultat', $rencontreACreer->getResultat()->name);
+        $statement->bindValue(':lieu', $rencontreACreer->getLieu()?->name);
+$statement->bindValue(':resultat', $rencontreACreer->getResultat()?->name);
 
         return $statement->execute();
     }
@@ -85,7 +85,7 @@ class RencontreDAO {
         $statement->bindValue(':date_heure', $rencontreAModifier->getDateEtHeure()->format('Y-m-d H:i:s'));
         $statement->bindValue(':equipe_adverse', $rencontreAModifier->getEquipeAdverse());
         $statement->bindValue(':adresse', $rencontreAModifier->getAdresse());
-        $statement->bindValue(':lieu', $rencontreAModifier->getLieu()->name);
+        $statement->bindValue(':lieu', $rencontreAModifier->getLieu()?->name);
         return $statement->execute();
     }
 
