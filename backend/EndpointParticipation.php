@@ -2,7 +2,7 @@
 require_once 'Psr4AutoloaderClass.php';
 require_once 'token.php'; 
 
-use backend\Psr4AutoloaderClass;
+use R301\Psr4AutoloaderClass;
 use R301\Controleur\ParticipationControleur;
 use R301\Modele\Participation\Poste;
 use R301\Modele\Participation\TitulaireOuRemplacant;
@@ -48,7 +48,7 @@ try {
             if (isset($_GET['id'])) {
                 $id = (int)$_GET['id'];
                 $participation = $controleur->getFeuilleDeMatch($id);
-                if (empty($participation->getParticipations())) {
+                if (empty($participation->getParticipants())) {
                     deliver_response(404, "Participation non trouvée");
                 }
                 deliver_response(200, "La requête a réussi", $participation);
@@ -95,7 +95,7 @@ try {
             }
 
             $participation = $controleur->getFeuilleDeMatch($id);
-            if (empty($participation->getParticipations())) {
+            if (empty($participation->getParticipants())) {
                 deliver_response(404, "Participation non trouvée");
             }
 
@@ -126,7 +126,7 @@ try {
             }
 
             $participation = $controleur->getFeuilleDeMatch($id);
-            if (empty($participation->getParticipations())) {
+            if (empty($participation->getParticipants())) {
                 deliver_response(404, "Participation non trouvée");
             }
 
@@ -146,7 +146,7 @@ try {
             $id = (int)$_GET['id'];
 
             $participation = $controleur->getFeuilleDeMatch($id);
-            if (empty($participation->getParticipations())) {
+            if (empty($participation->getParticipants())) {
                 deliver_response(404, "Participation non trouvée");
             }
 
