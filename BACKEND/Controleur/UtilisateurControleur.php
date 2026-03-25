@@ -33,7 +33,6 @@ class UtilisateurControleur {
         if ($utilisateurEssayantDeSeConnecter->getMotDePasse() == $password) {
             session_set_cookie_params(1800);
             ini_set('session.gc_maxlifetime', 1800);
-
             // Store username in session
             $_SESSION['username'] = $username;
             return true;

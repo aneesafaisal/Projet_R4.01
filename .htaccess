@@ -1,0 +1,10 @@
+RewriteEngine On
+RewriteBase /Projet_R4.01/
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule ^BACKEND/ - [L]
+RewriteRule ^test\.php$ - [L]
+
+RewriteRule ^ index.php [QSA,L]

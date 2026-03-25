@@ -8,8 +8,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"]) && isset($
     $controleur = UtilisateurControleur::getInstance();
 
     if ($controleur->seConnecter(trim($_POST["username"]), trim($_POST["password"]))) {
-        header("Location: joueur");
-        die();
+        header("Location: /Projet_R4.01/joueur");
+        exit();
     } else {
         $erreur = "Le nom d'Utilisateur ou le mot de passe est incorrect";
     }
@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"]) && isset($
     <div class="CentredContainer">
         <h1>Login</h1>
         <div class="container">
-            <form action="login" method="post">
+            <form action="/Projet_R4.01/login" method="post">
                 <div class="row">
                     <div class="col-20">
                         <label for="username">Username : </label>
