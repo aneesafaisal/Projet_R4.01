@@ -2,7 +2,7 @@
 require_once 'Psr4AutoloaderClass.php';
 require_once 'token.php'; 
 
-use backend\Psr4AutoloaderClass;
+use R301\Psr4AutoloaderClass;
 use R301\Controleur\StatistiquesControleur; 
 
 $loader = new Psr4AutoloaderClass();

@@ -5,7 +5,7 @@ namespace R301\Modele\Statistiques;
 use R301\Modele\Joueur\Joueur;
 use R301\Modele\Participation\Poste;
 
-class StatistiquesJoueurs {
+class StatistiquesJoueurs implements \JsonSerializable {
     private readonly array $participations;
     private readonly array $rencontresJouees;
 
@@ -135,6 +135,33 @@ class StatistiquesJoueurs {
             return null;
         }
     }
+
+    public function jsonSerialize(): array{
+        $joueurs = array_unique(
+            array_map(
+                function($participation) { return $participation->getParticipant(); },
+                $this->participations
+            ),
+            SORT_REGULAR
+        );
+
+        $statsParJoueur = [];
+        foreach ($joueurs as $joueur) {
+            $statsParJoueur[] = [
+                'joueur'                        => $joueur,
+                'nbTitularisations'             => $this->nbTitularisations($joueur),
+                'nbRemplacant'                  => $this->nbRemplacant($joueur),
+                'moyenneDesEvaluations'         => $this->moyenneDesEvaluations($joueur),
+                'pourcentageDeMatchsGagnes'     => $this->pourcentageDeMatchsGagnes($joueur),
+                'posteLePlusPerformant'         => $this->posteLePlusPerformant($joueur)?->name,
+                'nbRencontresConsecutivesADate' => $this->nbRencontresConsecutivesADate($joueur),
+            ];
+        }
+
+        return $statsParJoueur;
+    }
+
+
 }
 
 
