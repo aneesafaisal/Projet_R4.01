@@ -64,6 +64,15 @@ class JoueurControleur {
         int $poidsEnKg,
         string $statut
     ) : bool {
+        $data = [
+            "nom" => $nom,
+            "prenom" => $prenom,
+            "numeroDeLicence" => $numeroDeLicence,
+            "dateDeNaissance" => $dateDeNaissance->format('Y-m-d'),
+            "tailleEnCm" => $tailleEnCm,
+            "poidsEnKg" => $poidsEnKg,
+            "statut" => $statut
+        ];
         $response = $this->callAPI("POST", $this->apiUrl, $data);
         return $response != null;
     }
