@@ -1,5 +1,6 @@
 <?php
 require_once 'Psr4AutoloaderClass.php';
+require_once 'token.php'; 
 
 use backend\Psr4AutoloaderClass;
 use R301\Controleur\ParticipationControleur;
@@ -34,18 +35,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     deliver_response(204, "Méthode OPTIONS autorisée");
 }
 
-
+if (!verifyToken()) {
+    deliver_response(401, "Token invalide ou manquant");
+}
 
 $http_method = $_SERVER['REQUEST_METHOD'];
-if 
+
 try {
     switch ($http_method) {
 
         case 'GET':
             if (isset($_GET['id'])) {
-                $id=(int)$_GET['id'];
+                $id = (int)$_GET['id'];
                 $participation = $controleur->getFeuilleDeMatch($id);
-                if (empty($participation -> getParticipations())) {
+                if (empty($participation->getParticipations())) {
                     deliver_response(404, "Participation non trouvée");
                 }
                 deliver_response(200, "La requête a réussi", $participation);
@@ -55,7 +58,7 @@ try {
             deliver_response(200, "La requête a réussi", $participation);
             break;
 
-        case 'POST': 
+        case 'POST':
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data || !isset($data['joueur_id'], $data['rencontre_id'], $data['poste'], $data['titulaire_ou_remplacant'])) {
                 deliver_response(400, "JSON invalide ou champs manquants");
@@ -65,7 +68,7 @@ try {
             $rencontreId = (int)$data['rencontre_id'];
             $poste = Poste::fromName(strtoupper($data['poste']));
             $titulaireOuRemplacant = TitulaireOuRemplacant::fromName(strtoupper($data['titulaire_ou_remplacant']));
-            
+
             $success = $controleur->assignerUnParticipant(
                 $joueurId,
                 $rencontreId,
@@ -73,8 +76,8 @@ try {
                 $titulaireOuRemplacant
             );
 
-            if ($success){
-                deliver_response(201,  "Participation créée avec succès");
+            if ($success) {
+                deliver_response(201, "Participation créée avec succès");
             } else {
                 deliver_response(400, "Erreur lors de la création (poste déjà occupé ou joueur déjà sur la feuille de match)");
             }
@@ -84,7 +87,7 @@ try {
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
-            $id=(int)$_GET['id'];
+            $id = (int)$_GET['id'];
 
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data || !isset($data['joueur_id'], $data['poste'], $data['titulaire_ou_remplacant'])) {
@@ -92,7 +95,7 @@ try {
             }
 
             $participation = $controleur->getFeuilleDeMatch($id);
-            if (empty($participation -> getParticipations())) {
+            if (empty($participation->getParticipations())) {
                 deliver_response(404, "Participation non trouvée");
             }
 
@@ -104,32 +107,32 @@ try {
                 $id, $poste, $titulaireOuRemplacant, $joueurId
             );
 
-            if ($success){
-                deliver_response(200,  "Participation mise à jour");
+            if ($success) {
+                deliver_response(200, "Participation mise à jour");
             } else {
                 deliver_response(400, "Erreur lors de la mise à jour (poste déjà occupé ou joueur déjà sur la feuille de match)");
             }
             break;
 
-        case 'PATCH': // On l'utilise pour enregistrer la note de performance
+        case 'PATCH':
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
-            $id=(int)$_GET['id'];
+            $id = (int)$_GET['id'];
 
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data || !isset($data['performance'])) {
                 deliver_response(400, "JSON invalide ou champ 'performance' manquant");
-        }
+            }
 
             $participation = $controleur->getFeuilleDeMatch($id);
-            if (empty($participation -> getParticipations())) {
+            if (empty($participation->getParticipations())) {
                 deliver_response(404, "Participation non trouvée");
             }
 
             $success = $controleur->mettreAJourLaPerformance($id, $data['performance']);
 
-            if ($success){
+            if ($success) {
                 deliver_response(200, "Note de performance mise à jour avec succès");
             } else {
                 deliver_response(400, "Erreur lors de la mise à jour (match non encore passé ou note invalide)");
@@ -140,17 +143,17 @@ try {
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
-            $id=(int)$_GET['id'];
+            $id = (int)$_GET['id'];
 
             $participation = $controleur->getFeuilleDeMatch($id);
-            if (empty($participation -> getParticipations())) {
+            if (empty($participation->getParticipations())) {
                 deliver_response(404, "Participation non trouvée");
             }
 
             $success = $controleur->supprimerLaParticipation($id);
 
-            if ($success){
-                deliver_response(200,  "Participation supprimée avec succès");
+            if ($success) {
+                deliver_response(200, "Participation supprimée avec succès");
             } else {
                 deliver_response(400, "Impossible de supprimer (la participation est liée à une rencontre passée)");
             }

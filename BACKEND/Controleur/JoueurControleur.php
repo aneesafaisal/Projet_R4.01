@@ -115,6 +115,9 @@ class JoueurControleur {
     }
 
     public function supprimerJoueur(int $joueurId) : bool {
+        if ($this->participationControleur->lejoueurEstDejaSurLaFeuilleDeMatch($joueurId, $joueurId)) {
+            return false;
+        }
         return $this->joueurs->supprimerJoueur($joueurId);
 }
 }
