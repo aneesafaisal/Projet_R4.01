@@ -1,1 +1,5 @@
 /.idea/
+authentification/Psr4AutoloaderClass.php
+authentification/Psr4AutoloaderClass.php
+authentification/Utilisateur.php
+authentification/UtilisateurDAO.php

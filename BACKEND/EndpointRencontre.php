@@ -1,5 +1,6 @@
 <?php
 require_once 'Psr4AutoloaderClass.php';
+require_once 'token.php'; 
 
 use R301\Psr4AutoloaderClass;
 use R301\Controleur\RencontreControleur;
@@ -33,9 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     deliver_response(204, "Méthode OPTIONS autorisée");
 }
 
-//
-// Token a ajouter ici
-//
+
+if (!verifyToken()) {
+    deliver_response(401, "Token invalide ou manquant");
+}
 
 $http_method = $_SERVER['REQUEST_METHOD'];
 
@@ -44,7 +46,7 @@ try {
 
         case 'GET':
             if (isset($_GET['id'])) {
-                $id=htmlspecialchars($_GET['id']);
+                $id = (int)$_GET['id']; 
                 $rencontre = $controleur->getRenconterById($id);
                 if ($rencontre === null) {
                     deliver_response(404, "Rencontre non trouvée");
@@ -56,7 +58,7 @@ try {
             deliver_response(200, "La requête a réussi", $rencontres);
             break;
 
-        case 'POST': 
+        case 'POST':
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data || !isset($data['dateHeure'], $data['equipeAdverse'], $data['adresse'], $data['lieu'])) {
                 deliver_response(400, "JSON invalide ou champs manquants");
@@ -72,8 +74,8 @@ try {
                 $lieu
             );
 
-            if ($success){
-                deliver_response(201,  "Rencontre créée avec succès");
+            if ($success) {
+                deliver_response(201, "Rencontre créée avec succès");
             } else {
                 deliver_response(400, "Erreur lors de la création (date déjà passée ou autre)");
             }
@@ -83,7 +85,7 @@ try {
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
-            $id=htmlspecialchars($_GET['id']);
+            $id = (int)$_GET['id']; 
 
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data || !isset($data['dateHeure'], $data['equipeAdverse'], $data['adresse'], $data['lieu'])) {
@@ -102,18 +104,18 @@ try {
                 $id, $dateHeure, $data['equipeAdverse'], $data['adresse'], $lieu
             );
 
-            if ($success){
-                deliver_response(200,  "Rencontre mise à jour");
+            if ($success) {
+                deliver_response(200, "Rencontre mise à jour");
             } else {
                 deliver_response(400, "Erreur lors de la mise à jour (match déjà passé ou date invalide)");
             }
             break;
 
-        case 'PATCH': // On l'utilise pour enregistrer le resultat
+        case 'PATCH':
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
-            $id=htmlspecialchars($_GET['id']);
+            $id = (int)$_GET['id'];
 
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data || !isset($data['resultat'])) {
@@ -127,8 +129,8 @@ try {
 
             $success = $controleur->enregistrerResultat($id, $data['resultat']);
 
-            if ($success){
-                deliver_response(200,  "Résultat enregistré avec succès");
+            if ($success) {
+                deliver_response(200, "Résultat enregistré avec succès");
             } else {
                 deliver_response(400, "Erreur (match non passé ou déjà enregistré)");
             }
@@ -138,7 +140,7 @@ try {
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
-            $id=htmlspecialchars($_GET['id']);
+            $id = (int)$_GET['id']; 
 
             $rencontre = $controleur->getRenconterById($id);
             if ($rencontre === null) {
@@ -147,8 +149,8 @@ try {
 
             $success = $controleur->supprimerRencontre($id);
 
-            if ($success){
-                deliver_response(200,  "Rencontre supprimée avec succès");
+            if ($success) {
+                deliver_response(200, "Rencontre supprimée avec succès");
             } else {
                 deliver_response(400, "Impossible de supprimer (résultat déjà enregistré)");
             }
