@@ -1,0 +1,4 @@
+Options +FollowSymlinks
+RewriteEngine on
+RewriteRule ^Joueur/([0-9]+)$  EndpointJoueur.php?id=$1 [L]
+RewriteRule ^Joueur$  EndpointJoueur.php [L]

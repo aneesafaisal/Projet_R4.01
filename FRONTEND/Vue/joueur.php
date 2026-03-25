@@ -57,9 +57,9 @@ if (isset($_GET['recherche']) || isset($_GET['statut'])) {
 
         <?php foreach ($joueurs as $joueur) { ?>
             <tr>
-                <td><?php echo $joueur->getNumeroDeLicence() ?></td>
-                <td><?php echo $joueur->getNom() ?></td>
-                <td><?php echo $joueur->getPrenom() ?></td>
+                <td><?php echo $joueur["numeroDeLicence"] ?></td>
+                <td><?php echo $joueur["nom"] ?></td>
+                <td><?php echo $joueur["prenom"] ?></td>
                 <td><?php echo $joueur->getDateDeNaissance()->format('d/m/Y') ?></td>
                 <td><?php echo $joueur->getTailleEnCm() ?> cm</td>
                 <td><?php echo $joueur->getPoidsEnKg() ?> kg</td>
