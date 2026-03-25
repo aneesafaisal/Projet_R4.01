@@ -115,8 +115,13 @@ class JoueurDAO {
     }
 
     public function supprimerJoueur(string $joueurId) : bool {
+        $deleteParticipations = 'DELETE FROM participation WHERE joueur_id = :joueur_id';
+        $statement = $this->database->pdo()->prepare($deleteParticipations);
+        $statement->bindValue(':joueur_id', $joueurId);
+        $statement->execute();
+
         $query = 'DELETE FROM joueur WHERE joueur_id = :joueur_id';
-        $statement=$this->database->pdo()->prepare($query);
+        $statement = $this->database->pdo()->prepare($query);
         $statement->bindValue(':joueur_id', $joueurId);
         return $statement->execute();
     }
