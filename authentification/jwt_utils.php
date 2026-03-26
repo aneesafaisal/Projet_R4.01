@@ -1,25 +1,5 @@
 <?php
 
-
-function delivrer_reponse($status,$status_code,$status_message,$data=null){
-   
-    if ($status_code==204) {
-        http_response_code($status_code);
-
-    } else {
-        http_response_code($status_code);
-       
-        header("Content-Type:application/json; charset=utf-8");
-        $response['status_message'] = $status_message;
-        $response['data'] = $data;
-        $json_response = json_encode($response);
-        if($json_response===false)
-        die('json encode ERROR : '.json_last_error_msg());
-        echo $json_response;
-    }
-    
-}
-
 function generate_jwt($headers, $payload, $secret) {
 	$headers_encoded = base64url_encode(json_encode($headers));
 
@@ -34,25 +14,44 @@ function generate_jwt($headers, $payload, $secret) {
 }
 
 function is_jwt_valid($jwt, $secret) {
-	$tokenParts = explode('.', $jwt);
-	$header = base64_decode($tokenParts[0]);
-	$payload = base64_decode($tokenParts[1]);
-	$signature_provided = $tokenParts[2];
-	$expiration = json_decode($payload)->exp;
-	$is_token_expired = ($expiration - time()) < 0;
 
-	$base64_url_header = base64url_encode($header);
-	$base64_url_payload = base64url_encode($payload);
-	$signature = hash_hmac('SHA256', $base64_url_header . "." . $base64_url_payload, $secret, true);
-	$base64_url_signature = base64url_encode($signature);
+    if (!$jwt || !$secret) {
+        return false;
+    }
 
-	$is_signature_valid = ($base64_url_signature === $signature_provided);
+    $tokenParts = explode('.', $jwt);
 
-	if ($is_token_expired || !$is_signature_valid) {
-		return FALSE;
-	} else {
-		return TRUE;
-	}
+    if (count($tokenParts) !== 3) {
+        return false;
+    }
+
+    $header = base64_decode($tokenParts[0]);
+    $payload = base64_decode($tokenParts[1]);
+    $signature_provided = $tokenParts[2];
+
+    $decoded = json_decode($payload);
+
+    if (!$decoded || !isset($decoded->exp)) {
+        return false;
+    }
+
+    $is_token_expired = ($decoded->exp - time()) < 0;
+
+    $base64_url_header = base64url_encode($header);
+    $base64_url_payload = base64url_encode($payload);
+
+    $signature = hash_hmac(
+        'SHA256',
+        $base64_url_header . "." . $base64_url_payload,
+        $secret,
+        true
+    );
+
+    $base64_url_signature = base64url_encode($signature);
+
+    $is_signature_valid = ($base64_url_signature === $signature_provided);
+
+    return !$is_token_expired && $is_signature_valid;
 }
 
 function base64url_encode($data) {
@@ -64,11 +63,13 @@ function get_authorization_header(){
 
 	if (isset($_SERVER['Authorization'])) {
 		$headers = trim($_SERVER["Authorization"]);
-	} else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { 
+	} else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
 		$headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
 	} else if (function_exists('apache_request_headers')) {
 		$requestHeaders = apache_request_headers();
+		// Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
 		$requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
+		//print_r($requestHeaders);
 		if (isset($requestHeaders['Authorization'])) {
 			$headers = trim($requestHeaders['Authorization']);
 		}
@@ -79,9 +80,11 @@ function get_authorization_header(){
 
 function get_bearer_token() {
     $headers = get_authorization_header();
+    
+    // HEADER: Get the access token from the header
     if (!empty($headers)) {
         if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
-            if($matches[1]=='null') 
+            if($matches[1]=='null') //$matches[1] est de type string et peut contenir 'null'
                 return null;
             else
                 return $matches[1];
@@ -89,3 +92,5 @@ function get_bearer_token() {
     }
     return null;
 }
+
+?>

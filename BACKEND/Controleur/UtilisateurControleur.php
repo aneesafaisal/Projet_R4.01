@@ -10,14 +10,13 @@ use R301\Modele\Joueur\JoueurDAO;
 use R301\Modele\Joueur\JoueurStatut;
 use R301\Modele\Statistiques\StatistiquesEquipe;
 use R301\Modele\Statistiques\StatistiquesJoueurs;
-use R301\Modele\Utilisateur\UtilisateurDAO;
 
 class UtilisateurControleur {
     private static ?UtilisateurControleur $instance = null;
     private readonly UtilisateurDAO $utilisateurs;
 
     private function __construct() {
-        $this->utilisateurs = UtilisateurDAO::getInstance();
+        #$this->utilisateurs = UtilisateurDAO::getInstance();
     }
 
     public static function getInstance(): UtilisateurControleur {
