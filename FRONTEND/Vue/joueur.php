@@ -1,20 +1,20 @@
 <?php
-require_once(__DIR__ . "/../../Psr4AutoloaderClass.php");
+// Force le chargement de la version FRONTEND avant que l'autoloader
+// ne charge la version backend
+require_once __DIR__ . '/../Controleur/JoueurControleur.php';
 
-use R301\Psr4AutoloaderClass;
 use R301\Controleur\JoueurControleur;
 
-$loader = new Psr4AutoloaderClass();
-$loader->register();
-$loader->addNamespace('R301', __DIR__ . '/../../FRONTEND');
-
 $controleur = JoueurControleur::getInstance();
+
 if (isset($_GET['recherche']) || isset($_GET['statut'])) {
-    $joueurs = $controleur->rechercherLesJoueurs($_GET['recherche'], $_GET['statut']);
+    $joueurs = $controleur->rechercherLesJoueurs(
+        $_GET['recherche'] ?? '',
+        $_GET['statut'] ?? ''
+    );
 } else {
     $joueurs = $controleur->listerTousLesJoueurs();
 }
-
 ?>
 
 <h1>Joueurs</h1>
@@ -22,17 +22,18 @@ if (isset($_GET['recherche']) || isset($_GET['statut'])) {
     <form action="joueur" method="get">
         <div class="row">
             <div class="invCol-80">
-                <input type="search" name="recherche" placeholder="Rechercher" <?= isset($_GET['recherche']) ? 'value="'.$_GET['recherche'].'"' : '' ?>/>
+                <input type="search" name="recherche" placeholder="Rechercher"
+                    value="<?= htmlspecialchars($_GET['recherche'] ?? '') ?>"/>
             </div>
         </div>
         <div class="row">
             <div class="invCol-80">
                 <select name="statut" id="statut">
                     <option value="">Tous</option>
-                    <option value="ACTIF" <?= (isset($_GET['statut']) && $_GET['statut'] === "ACTIF") ? 'selected' : '' ?>>Actif</option>
-                    <option value="BLESSE" <?= (isset($_GET['statut']) && $_GET['statut'] === "BLESSE") ? 'selected' : '' ?>>Blessé</option>
-                    <option value="ABSENT" <?= (isset($_GET['statut']) && $_GET['statut'] === "ABSENT") ? 'selected' : '' ?>>Absent</option>
-                    <option value="SUSPENDU" <?= (isset($_GET['statut']) && $_GET['statut'] === "SUSPENDU") ? 'selected' : '' ?>>Suspendu</option>
+                    <option value="ACTIF"    <?= (($_GET['statut'] ?? '') === 'ACTIF')    ? 'selected' : '' ?>>Actif</option>
+                    <option value="BLESSE"   <?= (($_GET['statut'] ?? '') === 'BLESSE')   ? 'selected' : '' ?>>Blessé</option>
+                    <option value="ABSENT"   <?= (($_GET['statut'] ?? '') === 'ABSENT')   ? 'selected' : '' ?>>Absent</option>
+                    <option value="SUSPENDU" <?= (($_GET['statut'] ?? '') === 'SUSPENDU') ? 'selected' : '' ?>>Suspendu</option>
                 </select>
             </div>
             <div class="invCol-20">
@@ -55,24 +56,35 @@ if (isset($_GET['recherche']) || isset($_GET['statut'])) {
             <th style="width:20%; min-width: 370px;">Actions</th>
         </tr>
 
-        <?php foreach ($joueurs as $joueur) { ?>
+        <?php foreach ($joueurs as $joueur): ?>
             <tr>
-                <td><?php echo $joueur->getNumeroDeLicence() ?></td>
-                <td><?php echo $joueur->getNom() ?></td>
-                <td><?php echo $joueur->getPrenom() ?></td>
-                <td><?php echo $joueur->getDateDeNaissance()->format('d/m/Y') ?></td>
-                <td><?php echo $joueur->getTailleEnCm() ?> cm</td>
-                <td><?php echo $joueur->getPoidsEnKg() ?> kg</td>
-                <td><?php echo $joueur->getStatut()->name ?></td>
+                <td><?= htmlspecialchars($joueur['numeroDeLicence']) ?></td>
+                <td><?= htmlspecialchars($joueur['nom']) ?></td>
+                <td><?= htmlspecialchars($joueur['prenom']) ?></td>
+                <td><?= date('d/m/Y', strtotime($joueur['dateDeNaissance'])) ?></td>
+                <td><?= $joueur['tailleEnCm'] ?> cm</td>
+                <td><?= $joueur['poidsEnKg'] ?> kg</td>
+                <td><?= htmlspecialchars($joueur['statut']) ?></td>
                 <td class="actions">
-                    <form action="joueur/modifier" method="get"><button class="update" type="submit" name="id" value="<?php echo $joueur->getJoueurId() ?>">Modifier</button></form>
-                    <form action="joueur/supprimer" method="post"><button class="delete" type="submit" name="id" value="<?php echo $joueur->getJoueurId() ?>"  onclick="return confirm('Voulez-vous vraiment supprimer ce joueur?')">Supprimer</button></form>
-                    <form action="joueur/commentaire" method="get"><button class="info" type="submit" name="id" value="<?php echo $joueur->getJoueurId() ?>">Commentaires</button></form>
+                    <form action="joueur/modifier" method="get">
+                        <button class="update" type="submit" name="id"
+                            value="<?= $joueur['joueurId'] ?>">Modifier</button>
+                    </form>
+                    <form action="joueur/supprimer" method="post">
+                        <button class="delete" type="submit" name="id"
+                            value="<?= $joueur['joueurId'] ?>"
+                            onclick="return confirm('Voulez-vous vraiment supprimer ce joueur?')">
+                            Supprimer
+                        </button>
+                    </form>
+                    <form action="joueur/commentaire" method="get">
+                        <button class="info" type="submit" name="id"
+                            value="<?= $joueur['joueurId'] ?>">Commentaires</button>
+                    </form>
                 </td>
             </tr>
-        <?php } ?>
+        <?php endforeach; ?>
     </table>
-    <?php
-    echo count($joueurs)." joueurs retournés</p>";
-    ?>
+
+    <p><?= count($joueurs) ?> joueur(s) retourné(s)</p>
 </div>

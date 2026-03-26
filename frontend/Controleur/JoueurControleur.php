@@ -2,18 +2,23 @@
 
 namespace R301\Controleur;
 
-use DateTime;
-
 class JoueurControleur {
     private static ?JoueurControleur $instance = null;
-    private readonly ParticipationControleur $participationControleur;
     private string $apiUrl = "http://localhost/Projet_R4.01/BACKEND/Joueur";
 
-    private function __construct() {
-        #$this->participationControleur = ParticipationControleur::getInstance();
+    // Remplace par ta constante ou ta session token
+    private string $token = "TON_TOKEN_ICI";
+
+    private function __construct() {}
+
+    public static function getInstance(): JoueurControleur {
+        if (self::$instance === null) {
+            self::$instance = new JoueurControleur();
+        }
+        return self::$instance;
     }
 
-    private function callAPI(string $method, string $url, array $data = null) {
+    private function callAPI(string $method, string $url, array $data = null): ?array {
         $curl = curl_init();
 
         switch ($method) {
@@ -23,13 +28,18 @@ class JoueurControleur {
                     curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
                 }
                 break;
+
             case "PUT":
-            case "DELETE":
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
                 if ($data) {
                     curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
                 }
                 break;
+
+            case "DELETE":
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+                break;
+
             default: // GET
                 if ($data) {
                     $url .= "?" . http_build_query($data);
@@ -39,84 +49,116 @@ class JoueurControleur {
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json'
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $this->token
         ]);
 
-        $response = curl_exec($curl);
+        $result = curl_exec($curl);
         curl_close($curl);
 
-        return json_decode($response, true);
+        if (!$result) return null;
+
+        return json_decode($result, true);
     }
 
-    public static function getInstance(): JoueurControleur {
-        if (self::$instance == null) {
-            self::$instance = new JoueurControleur();
+    public function listerTousLesJoueurs(): array {
+        $response = $this->callAPI("GET", $this->apiUrl);
+
+        if ($response === null || $response['status_code'] !== 200) {
+            return [];
         }
-        return self::$instance;
+
+        return $response['data'] ?? [];
+    }
+
+    public function getJoueurById(int $id): ?array {
+        $response = $this->callAPI("GET", $this->apiUrl, ['id' => $id]);
+
+        if ($response === null || $response['status_code'] !== 200) {
+            return null;
+        }
+
+        return $response['data'];
     }
 
     public function ajouterJoueur(
         string $nom,
         string $prenom,
         string $numeroDeLicence,
-        DateTime $dateDeNaissance,
+        string $dateDeNaissance,
         int $tailleEnCm,
         int $poidsEnKg,
         string $statut
-    ) : bool {
+    ): bool {
         $data = [
-            "nom" => $nom,
-            "prenom" => $prenom,
-            "numeroDeLicence" => $numeroDeLicence,
-            "dateDeNaissance" => $dateDeNaissance->format('Y-m-d'),
-            "tailleEnCm" => $tailleEnCm,
-            "poidsEnKg" => $poidsEnKg,
-            "statut" => $statut
+            'nom'             => $nom,
+            'prenom'          => $prenom,
+            'numeroDeLicence' => $numeroDeLicence,
+            'dateDeNaissance' => $dateDeNaissance, // format "Y-m-d"
+            'tailleEnCm'      => $tailleEnCm,
+            'poidsEnKg'       => $poidsEnKg,
+            'statut'          => $statut
         ];
+
         $response = $this->callAPI("POST", $this->apiUrl, $data);
-        return $response != null;
-    }
 
-    //Joueur
-    public function getJoueurById(int $joueurId)  {  
-        return $this->callAPI("GET", $this->apiUrl . "/" . $joueurId);
-    }
-
-    // array
-    public function listerLesJoueursSelectionnablesPourUnMatch(int $rencontreId)   { 
-        return $this->callAPI("GET", $this->apiUrl);
-    }
-
-    //array
-    public function listerTousLesJoueurs()  { 
-       return $this->callAPI("GET", $this->apiUrl);
+        return $response !== null && $response['status_code'] === 201;
     }
 
     public function modifierJoueur(
-        int $joueurId,
+        int $id,
         string $nom,
         string $prenom,
         string $numeroDeLicence,
-        DateTime $dateDeNaissance,
+        string $dateDeNaissance,
         int $tailleEnCm,
         int $poidsEnKg,
         string $statut
-    ) : bool {
-        $response = $this->callAPI("PUT", $this->apiUrl . "/" . $joueurId, $data);
-        return $response != null;
+    ): bool {
+        $data = [
+            'nom'             => $nom,
+            'prenom'          => $prenom,
+            'numeroDeLicence' => $numeroDeLicence,
+            'dateDeNaissance' => $dateDeNaissance,
+            'tailleEnCm'      => $tailleEnCm,
+            'poidsEnKg'       => $poidsEnKg,
+            'statut'          => $statut
+        ];
+
+        $response = $this->callAPI("PUT", $this->apiUrl . "?id=" . $id, $data);
+
+        return $response !== null && $response['status_code'] === 200;
     }
 
-    public function rechercherLesJoueurs(string $recherche, string $statut)   { #array
-        return $this->callAPI("GET", $this->apiUrl, [
-        "recherche" => $recherche,
-        "statut" => $statut
-        ]);
+    public function supprimerJoueur(int $id): bool {
+        $response = $this->callAPI("DELETE", $this->apiUrl . "?id=" . $id);
+
+        return $response !== null && $response['status_code'] === 200;
     }
 
-    public function supprimerJoueur(int $joueurId) : bool {
-        $response = $this->callAPI("DELETE", $this->apiUrl . "/" . $joueurId);
-        return $response != null;
-}
-}
+    // Le backend n'a pas d'endpoint de filtre : on filtre côté frontend
+    public function rechercherLesJoueurs(string $recherche, string $statut): array {
+        $tous = $this->listerTousLesJoueurs();
+        $resultats = [];
 
-?>
+        foreach ($tous as $joueur) {
+            $conserver = true;
+
+            if ($recherche !== "") {
+                $nomContient    = str_contains(strtolower($joueur['nom']),    strtolower($recherche));
+                $prenomContient = str_contains(strtolower($joueur['prenom']), strtolower($recherche));
+                $conserver = $nomContient || $prenomContient;
+            }
+
+            if ($conserver && $statut !== "") {
+                $conserver = $joueur['statut'] === $statut;
+            }
+
+            if ($conserver) {
+                $resultats[] = $joueur;
+            }
+        }
+
+        return $resultats;
+    }
+}
