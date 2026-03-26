@@ -10,13 +10,14 @@ use R301\Modele\Joueur\JoueurDAO;
 use R301\Modele\Joueur\JoueurStatut;
 use R301\Modele\Statistiques\StatistiquesEquipe;
 use R301\Modele\Statistiques\StatistiquesJoueurs;
+use R301\Modele\Utilisateur\UtilisateurDAO; 
 
 class UtilisateurControleur {
     private static ?UtilisateurControleur $instance = null;
     private readonly UtilisateurDAO $utilisateurs;
 
     private function __construct() {
-        #$this->utilisateurs = UtilisateurDAO::getInstance();
+        $this->utilisateurs = UtilisateurDAO::getInstance();
     }
 
     public static function getInstance(): UtilisateurControleur {
@@ -27,16 +28,19 @@ class UtilisateurControleur {
     }
 
     public function seConnecter(string $username, string $password): bool {
-        $utilisateurEssayantDeSeConnecter = $this->utilisateurs->getUtilisateur($username);
+    $utilisateurEssayantDeSeConnecter = $this->utilisateurs->getUtilisateur($username);
 
-        if ($utilisateurEssayantDeSeConnecter->getMotDePasse() == $password) {
-            session_set_cookie_params(1800);
-            ini_set('session.gc_maxlifetime', 1800);
-            // Store username in session
-            $_SESSION['username'] = $username;
-            return true;
-        } else {
-            return false;
-        }
+    if ($utilisateurEssayantDeSeConnecter === null) {
+        return false; // user not found
     }
+
+    if (password_verify($password, $utilisateurEssayantDeSeConnecter->getMotDePasse())) {
+        session_set_cookie_params(1800);
+        ini_set('session.gc_maxlifetime', 1800);
+        $_SESSION['username'] = $username;
+        return true;
+    } else {
+        return false;
+    }
+}
 }

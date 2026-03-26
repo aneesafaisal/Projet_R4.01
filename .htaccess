@@ -1,9 +1,15 @@
 RewriteEngine On
-RewriteBase /Projet_R4.01/
 
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# Allow direct access to existing files and directories
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
-RewriteRule ^BACKEND/ - [L]
+# Let authentification handle itself
+RewriteRule ^authentification/ - [L]
 
-RewriteRule ^ index.php [QSA,L]
+# Let backend handle itself  
+RewriteRule ^backend/ - [L]
+
+# Everything else goes to frontend index.php
+RewriteRule ^ index.php [L]

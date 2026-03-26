@@ -4,7 +4,7 @@ require_once("jwt_utils.php");
 
 header("Content-Type: application/json");
 
-$secret = getenv('JWT_SECRET');
+$secret = getenv('JWT_SECRET') ?: 'asdfghjklzxcvbnm123456789';
 
 if (!$secret) {
     http_response_code(500);
@@ -31,11 +31,11 @@ $password = $input["password"];
 
 try {
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE Username = ?");
+    $stmt = $pdo->prepare("SELECT * FROM user WHERE login = ?");
     $stmt->execute([$login]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$user || !password_verify($password, $user["Password"])) {
+    if (!$user || !password_verify($password, $user["password"])) {
         http_response_code(401);
         echo json_encode(["message" => "Identifiants invalides"]);
         exit;
@@ -44,8 +44,8 @@ try {
     $headers = ["alg" => "HS256", "typ" => "JWT"];
 
     $payload = [
-        "login" => $user["Username"],
-        "role"  => $user["Role"],
+        "login" => $user["login"],
+        "role"  => $user["role"],
         "exp"   => time() + 3600
     ];
 
@@ -55,6 +55,6 @@ try {
 
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(["message" => "Erreur serveur"]);
+    echo json_encode(["message" => "Erreur serveur", "debug" => $e->getMessage()]);
 }
 ?>

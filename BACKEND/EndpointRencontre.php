@@ -1,12 +1,11 @@
 <?php
 require_once 'Psr4AutoloaderClass.php';
-require_once 'token.php'; 
+require_once 'token.php';
 
-use R301\Psr4AutoloaderClass;
 use R301\Controleur\RencontreControleur;
 use R301\Modele\Rencontre\RencontreLieu;
 
-$loader = new Psr4AutoloaderClass();
+$loader = new R301\Psr4AutoloaderClass();
 $loader->register();
 $loader->addNamespace('R301', __DIR__);
 
@@ -19,21 +18,13 @@ function deliver_response(int $status_code, string $status_message, $data = null
     header("Access-Control-Allow-Origin: *");
     header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-    $response = [
-        'status_code'    => $status_code,
-        'status_message' => $status_message,
-        'data'           => $data
-    ];
-
-    echo json_encode($response);
+    echo json_encode(['status_code' => $status_code, 'status_message' => $status_message, 'data' => $data]);
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     deliver_response(204, "Méthode OPTIONS autorisée");
 }
-
 
 if (!verifyToken()) {
     deliver_response(401, "Token invalide ou manquant");
@@ -46,16 +37,14 @@ try {
 
         case 'GET':
             if (isset($_GET['id'])) {
-                $id = (int)$_GET['id']; 
+                $id = (int)$_GET['id'];
                 $rencontre = $controleur->getRenconterById($id);
                 if ($rencontre === null) {
                     deliver_response(404, "Rencontre non trouvée");
                 }
                 deliver_response(200, "La requête a réussi", $rencontre);
             }
-
-            $rencontres = $controleur->listerToutesLesRencontres();
-            deliver_response(200, "La requête a réussi", $rencontres);
+            deliver_response(200, "La requête a réussi", $controleur->listerToutesLesRencontres());
             break;
 
         case 'POST':
@@ -63,21 +52,16 @@ try {
             if (!$data || !isset($data['dateHeure'], $data['equipeAdverse'], $data['adresse'], $data['lieu'])) {
                 deliver_response(400, "JSON invalide ou champs manquants");
             }
-
-            $dateHeure = new DateTime($data['dateHeure']);
-            $lieu = RencontreLieu::fromName(strtoupper($data['lieu']));
-
             $success = $controleur->ajouterRencontre(
-                $dateHeure,
+                new DateTime($data['dateHeure']),
                 $data['equipeAdverse'],
                 $data['adresse'],
-                $lieu
+                RencontreLieu::fromName(strtoupper($data['lieu']))
             );
-
             if ($success) {
                 deliver_response(201, "Rencontre créée avec succès");
             } else {
-                deliver_response(400, "Erreur lors de la création (date déjà passée ou autre)");
+                deliver_response(400, "Erreur lors de la création");
             }
             break;
 
@@ -85,29 +69,26 @@ try {
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
-            $id = (int)$_GET['id']; 
-
+            $id = (int)$_GET['id'];
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data || !isset($data['dateHeure'], $data['equipeAdverse'], $data['adresse'], $data['lieu'])) {
                 deliver_response(400, "JSON invalide ou champs manquants");
             }
-
             $rencontre = $controleur->getRenconterById($id);
             if ($rencontre === null) {
                 deliver_response(404, "Rencontre non trouvée");
             }
-
-            $dateHeure = new DateTime($data['dateHeure']);
-            $lieu = RencontreLieu::fromName(strtoupper($data['lieu']));
-
             $success = $controleur->modifierRencontre(
-                $id, $dateHeure, $data['equipeAdverse'], $data['adresse'], $lieu
+                $id,
+                new DateTime($data['dateHeure']),
+                $data['equipeAdverse'],
+                $data['adresse'],
+                RencontreLieu::fromName(strtoupper($data['lieu']))
             );
-
             if ($success) {
                 deliver_response(200, "Rencontre mise à jour");
             } else {
-                deliver_response(400, "Erreur lors de la mise à jour (match déjà passé ou date invalide)");
+                deliver_response(400, "Erreur lors de la mise à jour");
             }
             break;
 
@@ -116,23 +97,19 @@ try {
                 deliver_response(400, "ID manquante");
             }
             $id = (int)$_GET['id'];
-
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data || !isset($data['resultat'])) {
-                deliver_response(400, "JSON invalide ou champ 'resultat' manquant");
+                deliver_response(400, "Champ 'resultat' manquant");
             }
-
             $rencontre = $controleur->getRenconterById($id);
             if ($rencontre === null) {
                 deliver_response(404, "Rencontre non trouvée");
             }
-
             $success = $controleur->enregistrerResultat($id, $data['resultat']);
-
             if ($success) {
                 deliver_response(200, "Résultat enregistré avec succès");
             } else {
-                deliver_response(400, "Erreur (match non passé ou déjà enregistré)");
+                deliver_response(400, "Erreur lors de l'enregistrement du résultat");
             }
             break;
 
@@ -140,19 +117,16 @@ try {
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
-            $id = (int)$_GET['id']; 
-
+            $id = (int)$_GET['id'];
             $rencontre = $controleur->getRenconterById($id);
             if ($rencontre === null) {
                 deliver_response(404, "Rencontre non trouvée");
             }
-
             $success = $controleur->supprimerRencontre($id);
-
             if ($success) {
                 deliver_response(200, "Rencontre supprimée avec succès");
             } else {
-                deliver_response(400, "Impossible de supprimer (résultat déjà enregistré)");
+                deliver_response(400, "Impossible de supprimer la rencontre");
             }
             break;
 
