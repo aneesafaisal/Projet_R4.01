@@ -13,7 +13,7 @@ if (preg_match('/\.(?:png|jpg|jpeg|gif|ico|css|js)\??.*$/', $_SERVER["REQUEST_UR
     return false;
 }
 
-session_start(); // ← manquait !
+session_start(); 
 
 $uri = strtok($_SERVER["REQUEST_URI"], '?');
 $uri = str_replace(BASE_URL, '', $uri);
@@ -22,7 +22,6 @@ if ($uri === '/' || $uri === '/index.php' || $uri === '') {
     $uri = '/tableauDeBord';
 }
 
-// Redirection login seulement si pas connecté ET pas déjà sur /login
 if ($uri !== "/login" && !isset($_SESSION['username'])) {
     header('Location: ' . BASE_URL . '/login');
     exit();
