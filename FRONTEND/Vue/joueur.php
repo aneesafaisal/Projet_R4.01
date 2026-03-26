@@ -1,6 +1,4 @@
 <?php
-// Force le chargement de la version FRONTEND avant que l'autoloader
-// ne charge la version backend
 require_once __DIR__ . '/../Controleur/JoueurControleur.php';
 
 use R301\Controleur\JoueurControleur;
