@@ -1,15 +1,10 @@
 RewriteEngine On
+RewriteBase /Projet_R4.01/
 
-# Allow direct access to existing files and directories
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
+# 1. Allow direct access to physical FILES (css, js, images)
+RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
 
-# Let authentification handle itself
-RewriteRule ^authentification/ - [L]
-
-# Let backend handle itself  
-RewriteRule ^backend/ - [L]
-
-# Everything else goes to frontend index.php
-RewriteRule ^ index.php [L]
+# 2. Redirect everything else to index.php
+# This ignores physical directories so your PHP can handle the routing
+RewriteRule ^ index.php [QSA,L]
