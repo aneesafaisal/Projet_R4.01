@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 25, 2026 at 08:41 AM
+-- Generation Time: Mar 27, 2026 at 10:30 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -18,48 +18,51 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `r301php2025_db`
+-- Database: `r401_auth`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Table structure for table `user`
 --
 
-CREATE TABLE `users` (
-  `UserID` int(11) NOT NULL,
-  `Username` varchar(50) NOT NULL,
-  `Password` varchar(255) NOT NULL
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL,
+  `login` varchar(45) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `role` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `users`
+-- Dumping data for table `user`
 --
 
-INSERT INTO `users` (`UserID`, `Username`, `Password`) VALUES
-(1, 'admin', '$2y$10$WB/XA8eUqAufHRNpDfNjpe4IoNhJ/aV6gAe8I8EeYYPApAq2lUOdq');
+INSERT INTO `user` (`id`, `login`, `password`, `role`) VALUES
+(1, 'aneesa', 'aneesa123', 'admin'),
+(2, 'admin', '$2y$10$.C3lBF.LTiPCZvHUh.KxB.tvYx9bZ5xg/.yLfNUy0.D9GwpXZHBLy', 'admin'),
+(3, 'coach', '$2y$10$nJMFL1UoFo99MnZfhKec9O4RmjXPf/e43MLx0M6a65kBTab2PqhNK', 'user'),
+(4, 'directeur', '$2y$10$fhcCpFfx9CccEJIbKSiH.OqZSBbO5N4mfzRDGTQ73jak6ppK/Duv2', 'user');
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `users`
+-- Indexes for table `user`
 --
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`UserID`),
-  ADD UNIQUE KEY `Username` (`Username`);
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT for table `users`
+-- AUTO_INCREMENT for table `user`
 --
-ALTER TABLE `users`
-  MODIFY `UserID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+ALTER TABLE `user`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
