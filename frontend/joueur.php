@@ -5,10 +5,7 @@ use R301\Controleur\JoueurControleur;
 $controleur = JoueurControleur::getInstance();
 
 if (isset($_GET['recherche']) || isset($_GET['statut'])) {
-    $joueurs = $controleur->rechercherLesJoueurs(
-        $_GET['recherche'] ?? '',
-        $_GET['statut'] ?? ''
-    );
+    $joueurs = $controleur->rechercherLesJoueurs($_GET['recherche'],$_GET['statut']);
 } else {
     $joueurs = $controleur->listerTousLesJoueurs();
 }
@@ -27,10 +24,10 @@ if (isset($_GET['recherche']) || isset($_GET['statut'])) {
             <div class="invCol-80">
                 <select name="statut" id="statut">
                     <option value="">Tous</option>
-                    <option value="ACTIF"    <?= (($_GET['statut'] ?? '') === 'ACTIF')    ? 'selected' : '' ?>>Actif</option>
-                    <option value="BLESSE"   <?= (($_GET['statut'] ?? '') === 'BLESSE')   ? 'selected' : '' ?>>Blessé</option>
-                    <option value="ABSENT"   <?= (($_GET['statut'] ?? '') === 'ABSENT')   ? 'selected' : '' ?>>Absent</option>
-                    <option value="SUSPENDU" <?= (($_GET['statut'] ?? '') === 'SUSPENDU') ? 'selected' : '' ?>>Suspendu</option>
+                    <option value="ACTIF" <?= (isset($_GET['statut']) && $_GET['statut'] === "ACTIF") ? 'selected' : '' ?>>Actif</option>
+                    <option value="BLESSE" <?= (isset($_GET['statut']) && $_GET['statut'] === "BLESSE") ? 'selected' : '' ?>>Blessé</option>
+                    <option value="ABSENT" <?= (isset($_GET['statut']) && $_GET['statut'] === "ABSENT") ? 'selected' : '' ?>>Absent</option>
+                    <option value="SUSPENDU" <?= (isset($_GET['statut']) && $_GET['statut'] === "SUSPENDU") ? 'selected' : '' ?>>Suspendu</option>
                 </select>
             </div>
             <div class="invCol-20">

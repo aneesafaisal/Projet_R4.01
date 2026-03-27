@@ -4,7 +4,7 @@ require_once("jwt_utils.php");
 
 header("Content-Type: application/json");
 
-$secret = getenv('JWT_SECRET');
+$secret = getenv('JWT_SECRET') ?: 'asdfghjklzxcvbnm123456789';
 
 if (!$secret) {
     http_response_code(500);
