@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"]) && isset($
     }
 }
 ?>
-<!-- keep your HTML form as is -->
+
 <body>
     <div class="CentredContainer">
         <h1>Login</h1>
