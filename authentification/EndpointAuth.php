@@ -22,7 +22,7 @@ $input = json_decode(file_get_contents("php://input"), true);
 
 if (!$input || !isset($input["login"], $input["password"])) {
     http_response_code(400);
-    echo json_encode(["message" => "Données invalides ou "]);
+    echo json_encode(["message" => "Données invalides ou incomplètes"]);
     exit;
 }
 
@@ -57,4 +57,8 @@ try {
     http_response_code(500);
     echo json_encode(["message" => "Erreur serveur", "debug" => $e->getMessage()]);
 }
+
+
+
+
 ?>
