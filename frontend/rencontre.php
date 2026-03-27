@@ -2,7 +2,7 @@
 <?php
 
 use R301\Controleur\RencontreControleur;
-use R301\Vue\Component\SelectResultat;
+use R301\Component\SelectResultat;
 
 $controleur = RencontreControleur::getInstance();
 if ($_SERVER['REQUEST_METHOD'] === 'POST'

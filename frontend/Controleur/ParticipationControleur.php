@@ -7,7 +7,7 @@ use R301\Modele\Participation\TitulaireOuRemplacant;
 
 class ParticipationControleur {
     private static ?ParticipationControleur $instance = null;
-    private $apiUrl = "http://localhost/Projet_R4.01/BACKEND/EndpointParticipation.php";
+    private $apiUrl = "http://localhost/Projet_R4.01/backend/EndpointParticipation.php";
 
     private function __construct() {
         #$this->participations = ParticipationDAO::getInstance();
