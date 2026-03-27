@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
             $_POST['nom'],
             $_POST['prenom'],
             $_POST['numeroDeLicence'],
-            new DateTime($_POST['dateDeNaissance']),
+            $_POST['dateDeNaissance'],
             $_POST['tailleEnCm'],
             $_POST['poidsEnKg'],
             $_POST['statut']
