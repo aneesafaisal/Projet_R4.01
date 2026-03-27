@@ -40,7 +40,7 @@ class CommentaireControleur {
         return isset($res['status_code']) && $res['status_code'] === 201;
     }
 
-    public function listerLesCommentairesDuJoueur(Joueur $joueur) : array {
+    public function listerLesCommentairesDuJoueur(Int $id) : array {
         $options = [
             'http' => [
                 'method'        => 'GET',
@@ -48,7 +48,7 @@ class CommentaireControleur {
             ]
         ];
         $context  = stream_context_create($options);
-        $url = $this->apiUrl . "?joueur_id=" . $joueur->getJoueurId();
+        $url = $this->apiUrl . "?joueur_id=" . $id;
         $response = file_get_contents($url, false, $context);
         $res = json_decode($response, true);
         return $res['data'] ?? [];
