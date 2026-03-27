@@ -1,6 +1,6 @@
 <?php
 
-namespace R301\Vue\Component;
+namespace R301\Component;
 
 use R301\Modele\Participation\Performance;
 

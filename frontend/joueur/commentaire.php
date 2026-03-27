@@ -2,7 +2,9 @@
 
 use R301\Controleur\CommentaireControleur;
 use R301\Controleur\JoueurControleur;
-use R301\Vue\Component\Formulaire;
+use R301\Component\Formulaire;
+
+
 
 if (!isset($_GET['id'])) {
     header('Location: /joueur');

@@ -58,7 +58,7 @@ if ($uri !== "/login" && !isset($_SESSION['username'])) {
         </nav>
     <?php endif; ?>
     <?php
-        require_once __DIR__  . $uri . '.php';
+        require_once __DIR__ . '/frontend' . $uri . '.php';
     ?>
     </body>
 </html>

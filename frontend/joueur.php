@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../Controleur/JoueurControleur.php';
 
 use R301\Controleur\JoueurControleur;
 

@@ -4,7 +4,7 @@ use R301\Controleur\JoueurControleur;
 use R301\Controleur\ParticipationControleur;
 use R301\Modele\Participation\Poste;
 use R301\Modele\Participation\TitulaireOuRemplacant;
-use R301\Vue\Component\Select;
+use R301\Component\Select;
 
 $controleur = ParticipationControleur::getInstance();
 $joueurControleur = JoueurControleur::getInstance();

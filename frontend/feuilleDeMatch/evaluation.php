@@ -5,7 +5,7 @@
 use R301\Controleur\ParticipationControleur;
 use R301\Modele\Participation\Poste;
 use R301\Modele\Participation\TitulaireOuRemplacant;
-use R301\Vue\Component\SelectPerformance;
+use R301\Component\SelectPerformance;
 
 $controleur = ParticipationControleur::getInstance();
 

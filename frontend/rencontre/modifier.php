@@ -4,7 +4,7 @@
 
 use R301\Controleur\RencontreControleur;
 use R301\Modele\Rencontre\RencontreLieu;
-use R301\Vue\Component\Formulaire;
+use R301\Component\Formulaire;
 
 
 $controleur = RencontreControleur::getInstance();
