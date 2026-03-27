@@ -28,7 +28,7 @@ echo $form;
 $controleurCommentaire = CommentaireControleur::getInstance();
 $commentaires = $controleurCommentaire->listerLesCommentairesDuJoueur($_GET['id']);
 
-usort($commentaires, function ($a, $b) { return $b->getDate() <=> $a->getDate(); });
+usort($commentaires, function ($a, $b) { return $b['date'] <=> $a['date']; });
 
 ?>
 <div class="container">
@@ -40,8 +40,6 @@ usort($commentaires, function ($a, $b) { return $b->getDate() <=> $a->getDate();
         </tr>
         <?php foreach ($commentaires as $commentaire): ?>
         <form action="/joueur/commentaire/supprimer" method="post">
-            <input type="hidden" name="commentaireId" value="<?php echo htmlspecialchars($commentaire['commentaire_id']); ?>"/>
-            <input type="hidden" name="joueurId" value="<?php echo $_GET['id']; ?>" />
             <tr>
                 <td><?php echo $commentaire["date"]; ?></td>
                 <td><?php echo $commentaire["contenu"]; ?></td>
