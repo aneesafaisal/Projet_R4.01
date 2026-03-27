@@ -27,7 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
             $_POST['statut']
         )
     ) {
-        header('Location: ');
+        header('Location: ' . BASE_URL . '/joueur');   // ← LIGNE CORRIGÉE
+        exit;
     } else {
         error_log("Erreur lors de la création du joueur");
     }
