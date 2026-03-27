@@ -1,8 +1,9 @@
 <h1>Modifier un joueur</h1>
 <?php
 
+require_once __DIR__ . '/../Controleur/JoueurControleur.php';
+
 use R301\Controleur\JoueurControleur;
-use R301\Modele\Joueur\JoueurStatut;
 use R301\Component\Formulaire;
 
 $controleur = JoueurControleur::getInstance();
@@ -16,40 +17,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['poidsEnKg'])
     && isset($_POST['statut'])
 ) {
-
     if (
         $controleur->modifierJoueur(
-            $_GET['id'],
+            (int)$_GET['id'],
             $_POST['nom'],
             $_POST['prenom'],
             $_POST['numeroDeLicence'],
-            new DateTime($_POST['dateDeNaissance']),
-            $_POST['tailleEnCm'],
-            $_POST['poidsEnKg'],
+            $_POST['dateDeNaissance'], // string "Y-m-d", le controleur frontend n'attend plus un DateTime
+            (int)$_POST['tailleEnCm'],
+            (int)$_POST['poidsEnKg'],
             $_POST['statut']
         )
     ) {
         header('Location: ' . BASE_URL . '/joueur');
         exit;
-    }else{
+    } else {
         error_log("Erreur lors de la modification du joueur");
     }
+
 } else {
+
     if (!isset($_GET['id'])) {
         header('Location: ' . BASE_URL . '/joueur');
         exit;
-    } else {
-        $joueur = $controleur->getJoueurById($_GET['id']);
-
-        $formulaire = new Formulaire("modifier?id=".$joueur->getJoueurId());
-        $formulaire->setText("Nom", "nom", "", $joueur->getNom());
-        $formulaire->setText("Prenom", "prenom", "", $joueur->getPrenom());
-        $formulaire->setText("Numéro de license", "numeroDeLicence", "00042", $joueur->getNumeroDeLicence());
-        $formulaire->setDate("Date de naissance", "dateDeNaissance", $joueur->getDateDeNaissance()->format('Y-m-d'));
-        $formulaire->setText("Taille (en cm)", "tailleEnCm", "", $joueur->getTailleEnCm());
-        $formulaire->setText("Poids (en Kg)", "poidsEnKg", "", $joueur->getPoidsEnKg());
-        $formulaire->setSelect("Statut", array_map(function($statut) { return $statut->name; }, JoueurStatut::cases()), "statut");
-        $formulaire->addButton("Submit", "update", "modifier","Modifier");
-        echo $formulaire;
     }
+
+    $joueur = $controleur->getJoueurById((int)$_GET['id']);
+
+    if ($joueur === null) {
+        header('Location: ' . BASE_URL . '/joueur');
+        exit;
+    }
+
+    $formulaire = new Formulaire("modifier?id=" . $_GET['id']);
+    $formulaire->setText("Nom", "nom", "", $joueur['nom']);
+    $formulaire->setText("Prenom", "prenom", "", $joueur['prenom']);
+    $formulaire->setText("Numéro de license", "numeroDeLicence", "00042", $joueur['numeroDeLicence']);
+    $formulaire->setDate("Date de naissance", "dateDeNaissance", $joueur['dateDeNaissance']);
+    $formulaire->setText("Taille (en cm)", "tailleEnCm",  "", $joueur['tailleEnCm']);
+    $formulaire->setText("Poids (en Kg)", "poidsEnKg", "",  $joueur['poidsEnKg']);
+    $formulaire->setSelect("Statut", ['ACTIF', 'BLESSE', 'ABSENT', 'SUSPENDU'], "statut", $joueur['statut']);
+    $formulaire->addButton("Submit", "update", "modifier", "Modifier");
+    echo $formulaire;
 }
