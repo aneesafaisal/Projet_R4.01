@@ -2,10 +2,12 @@
 
 <?php
 
+use R301\Controleur\RencontreControleur;
 use R301\Modele\Rencontre\RencontreLieu;
 use R301\Vue\Component\Formulaire;
-use R301\Controleur\RencontreControleur;
 
+
+$controleur = RencontreControleur::getInstance();
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
         && isset($_GET['id'])
         && isset($_POST['dateHeure'])
@@ -13,50 +15,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         && isset($_POST['adresse'])
         && isset($_POST['lieu'])
 ) {
-    $id = (int)$_GET['id'];
-
-    $context = stream_context_create([
-        'http' => [
-            'method'  => 'PUT',
-            'header'  => "Content-Type: application/json\r\nAuthorization: Bearer " . $_SESSION['jwt'],
-            'content' => json_encode([
-                'dateHeure'     => $_POST['dateHeure'],
-                'equipeAdverse' => $_POST['equipeAdverse'],
-                'adresse'       => $_POST['adresse'],
-                'lieu'          => $_POST['lieu'],
-            ]),
-            'ignore_errors'   => true,
-            'follow_location' => 0,
-        ]
-    ]);
-
-    $response = file_get_contents('http://localhost/Projet_R4.01/backend/EndpointRencontre.php?id=' . $id, false, $context);
-    $result = json_decode($response, true);
-
-    if (isset($result['status_code']) && $result['status_code'] === 200) {
-        header('Location: /Projet_R4.01/rencontre');
-        exit();
-    } else {
-        $erreur = $result['status_message'] ?? "Erreur lors de la modification de la rencontre";
+    if (
+        $controleur->modifierRencontre(
+            $_GET['id'],
+            new DateTime($_POST['dateHeure']),
+            $_POST['equipeAdverse'],
+            $_POST['adresse'],
+            RencontreLieu::fromName($_POST['lieu'])
+        )
+    ) {
+        header('Location: /rencontre');
+    }else{
+        error_log("Erreur lors de la modification de la rencontre");
     }
-
 } else {
     if (!isset($_GET['id'])) {
-        header("Location: /Projet_R4.01/rencontre");
-        exit();
+        header("Location: /rencontre");
     } else {
-        $id = (int)$_GET['id'];
+        $rencontre = $controleur->getRenconterById($_GET['id']);
 
-        // Use controller directly to prefill the form
-        $controleur = RencontreControleur::getInstance();
-        $rencontre = $controleur->getRenconterById($id);
-
-        if ($rencontre === null) {
-            header("Location: /Projet_R4.01/rencontre");
-            exit();
-        }
-
-        $formulaire = new Formulaire("/Projet_R4.01/rencontre/modifier?id=" . $rencontre->getRencontreId());
+        $formulaire = new Formulaire("/rencontre/modifier?id=" . $rencontre->getRencontreId());
         $formulaire->setDateTime("Date", "dateHeure", date("Y-m-d H:i"), $rencontre->getDateEtHeure()->format("Y-m-d H:i"));
         $formulaire->setText("Equipe adverse", "equipeAdverse", "", $rencontre->getEquipeAdverse());
         $formulaire->setText("Adresse", "adresse", "", $rencontre->getAdresse());
@@ -67,8 +45,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         echo $formulaire;
     }
 }
-
-if (isset($erreur)) {
-    echo "<p style='color:red;'>" . htmlspecialchars($erreur) . "</p>";
-}
-?>

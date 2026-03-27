@@ -22,7 +22,7 @@ $input = json_decode(file_get_contents("php://input"), true);
 
 if (!$input || !isset($input["login"], $input["password"])) {
     http_response_code(400);
-    echo json_encode(["message" => "Données invalides"]);
+    echo json_encode(["message" => "Données invalides ou "]);
     exit;
 }
 
