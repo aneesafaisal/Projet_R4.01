@@ -1,24 +1,18 @@
-
 <?php
+
 namespace R301\Controleur;
 
-use R301\Modele\Participation\FeuilleDeMatch;
-use R301\Modele\Participation\Participation;
-use R301\Modele\Participation\ParticipationDAO;
-use R301\Modele\Participation\Performance;
 use R301\Modele\Participation\Poste;
 use R301\Modele\Participation\TitulaireOuRemplacant;
 
 class ParticipationControleur {
     private static ?ParticipationControleur $instance = null;
-    private readonly ParticipationDAO $participations;
-    private readonly JoueurControleur $joueurs;
-    private readonly RencontreControleur $rencontres;
+    private $apiUrl = "http://localhost/Projet_R4.01/BACKEND/EndpointParticipation.php";
 
     private function __construct() {
-        $this->participations = ParticipationDAO::getInstance();
-        $this->joueurs = JoueurControleur::getInstance();
-        $this->rencontres = RencontreControleur::getInstance();
+        #$this->participations = ParticipationDAO::getInstance();
+        #$this->joueurs = JoueurControleur::getInstance();
+        #$this->rencontres = RencontreControleur::getInstance();
     }
 
     public static function getInstance(): ParticipationControleur {
@@ -29,15 +23,44 @@ class ParticipationControleur {
     }
 
     public function lejoueurEstDejaSurLaFeuilleDeMatch(int $rencontreId, int $joueurId) : bool {
-        return $this->participations->lejoueurEstDejaSurLaFeuilleDeMatch($rencontreId, $joueurId);
+        $options = [
+            'http' => [
+                'method'        => 'GET',
+                'ignore_errors' => true
+            ]
+        ];
+        $context  = stream_context_create($options);
+        $url = $this->apiUrl . "?rencontre_id=" . $rencontreId . "&joueur_id=" . $joueurId . "&check=feuille";
+        $response = file_get_contents($url, false, $context);
+        $res = json_decode($response, true);
+        return isset($res['data']) && $res['data'] === true;
     }
 
     public function listerToutesLesParticipations() : array {
-        return $this->participations->selectAllParticipations();
+        $options = [
+            'http' => [
+                'method'        => 'GET',
+                'ignore_errors' => true
+            ]
+        ];
+        $context  = stream_context_create($options);
+        $response = file_get_contents($this->apiUrl, false, $context);
+        $res = json_decode($response, true);
+        return $res['data'] ?? [];
     }
 
-    public function getFeuilleDeMatch(int $rencontreId) : FeuilleDeMatch {
-        return new FeuilleDeMatch($this->participations->selectParticipationsByRencontreId($rencontreId));
+    public function getFeuilleDeMatch(int $rencontreId) : array {
+        $options = [
+            'http' => [
+                'method'        => 'GET',
+                'ignore_errors' => true
+            ]
+        ];
+        $context  = stream_context_create($options);
+        $url = $this->apiUrl . "?rencontre_id=" . $rencontreId;
+        $response = file_get_contents($url, false, $context);
+        $res = json_decode($response, true);
+        return $res['data'] ?? [];
     }
 
     public function assignerUnParticipant(
@@ -46,25 +69,24 @@ class ParticipationControleur {
         Poste $poste,
         TitulaireOuRemplacant $titulaireOuRemplacant
     ) : bool {
-        if ($this->participations->lePosteEstDejaOccupe($rencontreId, $poste, $titulaireOuRemplacant)
-            || $this->lejoueurEstDejaSurLaFeuilleDeMatch($rencontreId, $joueurId)
-        ) {
-            return false;
-        } else {
-            $joueur = $this->joueurs->getJoueurById($joueurId);
-            $rencontre = $this->rencontres->getRenconterById($rencontreId);
-
-            $participationACreer = new Participation(
-                0,
-                $joueur,
-                $rencontre,
-                $titulaireOuRemplacant,
-                null,
-                $poste
-            );
-
-            return $this->participations->insertParticipation($participationACreer);
-        }
+        $data = [
+            "joueur_id"              => $joueurId,
+            "rencontre_id"           => $rencontreId,
+            "poste"                  => $poste->name,
+            "titulaire_ou_remplacant" => $titulaireOuRemplacant->name
+        ];
+        $options = [
+            'http' => [
+                'method'  => 'POST',
+                'header'  => "Content-Type: application/json",
+                'content' => json_encode($data),
+                'ignore_errors' => true
+            ]
+        ];
+        $context  = stream_context_create($options);
+        $response = file_get_contents($this->apiUrl, false, $context);
+        $res = json_decode($response, true);
+        return isset($res['status_code']) && $res['status_code'] === 201;
     }
 
     public function modifierParticipation(
@@ -73,45 +95,74 @@ class ParticipationControleur {
         TitulaireOuRemplacant $titulaireOuRemplacant,
         int $joueurId
     ) : bool {
-        $participationAModifier = $this->participations->selectParticipationById($participationId);
-
-        if ($participationAModifier->getParticipant()->getJoueurId() != $joueurId) {
-            $participationAModifier->setParticipant($this->joueurs->getJoueurById($joueurId));
-        }
-
-        $participationAModifier->setPoste($poste);
-        $participationAModifier->setTitulaireOuRemplacant($titulaireOuRemplacant);
-
-        return $this->participations->updateParticipation($participationAModifier);
+        $data = [
+            "id"                     => $participationId,
+            "joueur_id"              => $joueurId,
+            "poste"                  => $poste->name,
+            "titulaire_ou_remplacant" => $titulaireOuRemplacant->name
+        ];
+        $options = [
+            'http' => [
+                'method'  => 'PUT',
+                'header'  => "Content-Type: application/json",
+                'content' => json_encode($data),
+                'ignore_errors' => true
+            ]
+        ];
+        $context  = stream_context_create($options);
+        $response = file_get_contents($this->apiUrl, false, $context);
+        $res = json_decode($response, true);
+        return isset($res['status_code']) && $res['status_code'] === 200;
     }
 
     public function supprimerLaParticipation(int $participationId) : bool {
-        return $this->participations->deleteParticipation($participationId);
+        $url = $this->apiUrl . "?id=" . $participationId;
+        $options = [
+            'http' => [
+                'method'        => 'DELETE',
+                'ignore_errors' => true
+            ]
+        ];
+        $context  = stream_context_create($options);
+        $response = file_get_contents($url, false, $context);
+        $res = json_decode($response, true);
+        return isset($res['status_code']) && $res['status_code'] === 200;
     }
 
     public function mettreAJourLaPerformance(
         int $participationId,
         string $performance
     ) : bool {
-        $participationAEvaluer = $this->participations->selectParticipationById($participationId);
-
-        if (!$participationAEvaluer->getRencontre()->estPassee()) {
-            return false;
-        }
-
-        $participationAEvaluer->setPerformance(Performance::fromName($performance));
-        return $this->participations->updatePerformance($participationAEvaluer);
+        $data = [
+            "id"          => $participationId,
+            "performance" => $performance
+        ];
+        $options = [
+            'http' => [
+                'method'  => 'PUT',
+                'header'  => "Content-Type: application/json",
+                'content' => json_encode($data),
+                'ignore_errors' => true
+            ]
+        ];
+        $context  = stream_context_create($options);
+        $response = file_get_contents($this->apiUrl . "?action=performance", false, $context);
+        $res = json_decode($response, true);
+        return isset($res['status_code']) && $res['status_code'] === 200;
     }
 
     public function supprimerLaPerformance(int $participationId) : bool {
-        $participationAEvaluer = $this->participations->selectParticipationById($participationId);
-
-        if (!$participationAEvaluer->getRencontre()->estPassee()) {
-            return false;
-        }
-
-        $participationAEvaluer->setPerformance(null);
-        return $this->participations->updatePerformance($participationAEvaluer);
+        $url = $this->apiUrl . "?id=" . $participationId . "&action=performance";
+        $options = [
+            'http' => [
+                'method'        => 'DELETE',
+                'ignore_errors' => true
+            ]
+        ];
+        $context  = stream_context_create($options);
+        $response = file_get_contents($url, false, $context);
+        $res = json_decode($response, true);
+        return isset($res['status_code']) && $res['status_code'] === 200;
     }
 }
 

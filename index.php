@@ -6,8 +6,9 @@ define('BASE_URL', '/Projet_R4.01');
 
 $loader = new Psr4AutoloaderClass;
 $loader->register();
-$loader->addNamespace('R301', __DIR__ . '/BACKEND');
 $loader->addNamespace('R301', __DIR__ . '/FRONTEND');
+$loader->addNamespace('R301', __DIR__ . '/BACKEND');
+
 
 if (preg_match('/\.(?:png|jpg|jpeg|gif|ico|css|js)\??.*$/', $_SERVER["REQUEST_URI"])) {
     return false;
@@ -57,7 +58,7 @@ if ($uri !== "/login" && !isset($_SESSION['username'])) {
         </nav>
     <?php endif; ?>
     <?php
-        require_once __DIR__ . '/FRONTEND/Vue' . $uri . '.php';
+        require_once __DIR__  . $uri . '.php';
     ?>
     </body>
 </html>
