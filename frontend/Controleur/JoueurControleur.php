@@ -4,7 +4,7 @@ namespace R301\Controleur;
 
 class JoueurControleur {
     private static ?JoueurControleur $instance = null;
-    private string $apiUrl = "http://localhost/Projet_R4.01/BACKEND/Joueur";
+    private string $apiUrl = "http://localhost/Projet_R4.01/backend/EndpointJoueur.php";
 
     // Remplace par ta constante ou ta session token
     private string $token = "TON_TOKEN_ICI";
@@ -63,7 +63,7 @@ class JoueurControleur {
 
     public function listerTousLesJoueurs(): array {
         $response = $this->callAPI("GET", $this->apiUrl);
-
+        
         if ($response === null || $response['status_code'] !== 200) {
             return [];
         }
