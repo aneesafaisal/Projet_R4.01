@@ -4,42 +4,85 @@ namespace R301\Controleur;
 
 class RencontreControleur {
     private static ?RencontreControleur $instance = null;
-    private $apiUrl = "http://127.0.0.1/Projet_R4.01/backend/EndpointRencontre.php";
+    private string $apiUrl = "http://localhost/Projet_R4.01/backend/EndpointRencontre.php";
 
     private function __construct() {}
 
     public static function getInstance(): RencontreControleur {
-        if (self::$instance == null) {
+        if (self::$instance === null) {
             self::$instance = new RencontreControleur();
         }
         return self::$instance;
     }
 
+    private function callAPI(string $method, string $url, array $data = null): ?array {
+        $curl = curl_init();
+
+        switch ($method) {
+            case "POST":
+                curl_setopt($curl, CURLOPT_POST, true);
+                if ($data) {
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+                }
+                break;
+
+            case "PUT":
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+                if ($data) {
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+                }
+                break;
+
+            case "PATCH":
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PATCH");
+                if ($data) {
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+                }
+                break;
+
+            case "DELETE":
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+                break;
+
+            default: // GET
+                if ($data) {
+                    $url .= "?" . http_build_query($data);
+                }
+        }
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $this->token
+        ]);
+
+        $result = curl_exec($curl);
+        curl_close($curl);
+
+        if (!$result) return null;
+
+        return json_decode($result, true);
+    }
+
     public function listerToutesLesRencontres(): array {
-        $options = [
-            'http' => [
-                'method'        => 'GET',
-                'ignore_errors' => true
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $response = file_get_contents($this->apiUrl, false, $context);
-        $res = json_decode($response, true);
-        return $res['data'] ?? [];
+        $response = $this->callAPI("GET", $this->apiUrl);
+        
+        if ($response === null || $response['status_code'] !== 200) {
+            return [];
+        }
+
+        return $response['data'] ?? [];
     }
 
     public function getRencontreById(int $id): ?array {
-        $options = [
-            'http' => [
-                'method'        => 'GET',
-                'ignore_errors' => true
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $url      = $this->apiUrl . "?id=" . $id;
-        $response = file_get_contents($url, false, $context);
-        $res = json_decode($response, true);
-        return $res['data'] ?? null;
+        $response = $this->callAPI("GET", $this->apiUrl, ['id' => $id]);
+
+        if ($response === null || $response['status_code'] !== 200) {
+            return null;
+        }
+
+        return $response['data'];
     }
 
     public function ajouterRencontre(
@@ -54,18 +97,9 @@ class RencontreControleur {
             'adresse'       => $adresse,
             'lieu'          => $lieu
         ];
-        $options = [
-            'http' => [
-                'method'        => 'POST',
-                'header'        => "Content-Type: application/json",
-                'content'       => json_encode($data),
-                'ignore_errors' => true
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $response = file_get_contents($this->apiUrl, false, $context);
-        $res = json_decode($response, true);
-        return isset($res['status_code']) && $res['status_code'] === 201;
+
+        $response = $this->callAPI("POST", $this->apiUrl, $data);
+        return $response !== null && $response['status_code'] === 201;
     }
 
     public function modifierRencontre(
@@ -81,56 +115,22 @@ class RencontreControleur {
             'adresse'       => $adresse,
             'lieu'          => $lieu
         ];
-        $options = [
-            'http' => [
-                'method'        => 'PUT',
-                'header'        => "Content-Type: application/json",
-                'content'       => json_encode($data),
-                'ignore_errors' => true
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $url      = $this->apiUrl . "?id=" . $id;
-        $response = file_get_contents($url, false, $context);
-        $res = json_decode($response, true);
-        return isset($res['status_code']) && $res['status_code'] === 200;
+
+        $response = $this->callAPI("PUT", $this->apiUrl . "?id=" . $id, $data);
+        return $response !== null && $response['status_code'] === 200;
     }
 
     public function enregistrerResultat(
         int $id,
         string $resultat
     ): bool {
-        $data = [
-            'resultat' => $resultat
-        ];
-        $options = [
-            'http' => [
-                'method'        => 'PUT',
-                'header'        => "Content-Type: application/json",
-                'content'       => json_encode($data),
-                'ignore_errors' => true
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $url      = $this->apiUrl . "?id=" . $id . "&action=resultat";
-        $response = file_get_contents($url, false, $context);
-        $res = json_decode($response, true);
-        return isset($res['status_code']) && $res['status_code'] === 200;
+        $data = ['resultat' => $resultat];
+        $response = $this->callAPI("PATCH", $this->apiUrl . "?id=" . $id, $data);
+        return $response !== null && $response['status_code'] === 200;
     }
 
     public function supprimerRencontre(int $id): bool {
-        $options = [
-            'http' => [
-                'method'        => 'DELETE',
-                'ignore_errors' => true
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $url      = $this->apiUrl . "?id=" . $id;
-        $response = file_get_contents($url, false, $context);
-        $res = json_decode($response, true);
-        return isset($res['status_code']) && $res['status_code'] === 200;
+        $response = $this->callAPI("DELETE", $this->apiUrl . "?id=" . $id);
+        return $response !== null && $response['status_code'] === 200;
     }
 }
-
-?>

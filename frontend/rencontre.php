@@ -1,10 +1,10 @@
-
 <?php
 
 use R301\Controleur\RencontreControleur;
 use R301\Component\SelectResultat;
 
 $controleur = RencontreControleur::getInstance();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
         && isset($_POST['action'])
         && isset($_POST['rencontreId'])
@@ -38,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
 $rencontres = $controleur->listerToutesLesRencontres();
 
-
 ?>
 <h1>Rencontres</h1>
 <div class="overflow container">
@@ -54,30 +53,37 @@ $rencontres = $controleur->listerToutesLesRencontres();
         <?php foreach ($rencontres as $rencontre):
 
             $selectResultat = new SelectResultat(
-                    null,
-                    $rencontre->getResultat()?->name
+                null,
+                $rencontre['resultat'] ?? null
             );
+
+            // Calcul estPassee (comme le faisait la méthode du modèle)
+            $dateMatch = new DateTime($rencontre['dateEtHeure']);
+            $estPassee = $dateMatch < new DateTime();
+            $resultatActuel = $rencontre['resultat'] ?? null;
         ?>
         <form action="rencontre" method="post">
             <tr>
-                <input type="hidden" name="rencontreId" value="<?php echo $rencontre->getRencontreId(); ?>" />
-                <td><?php echo $rencontre->getDateEtHeure()->format('d/m/Y H:i') ?></td>
-                <td><?php echo $rencontre->getEquipeAdverse() ?></td>
-                <td><?php echo $rencontre->getAdresse() ?></td>
-                <td><?php echo $rencontre->getLieu()->name ?></td>
-                <?php if ($rencontre->estPassee() && $rencontre->getResultat() ===null): ?>
+                <input type="hidden" name="rencontreId" value="<?php echo htmlspecialchars($rencontre['rencontreId']); ?>" />
+                <td><?php echo $dateMatch->format('d/m/Y H:i') ?></td>
+                <td><?php echo htmlspecialchars($rencontre['equipeAdverse']) ?></td>
+                <td><?php echo htmlspecialchars($rencontre['adresse']) ?></td>
+                <td><?php echo htmlspecialchars($rencontre['lieu']) ?></td>
+
+                <?php if ($estPassee && $resultatActuel === null): ?>
                     <td><?php $selectResultat->toHTML(); ?></td>
                 <?php else: ?>
-                    <td><?php echo $rencontre->getResultat()?->name ?></td>
+                    <td><?php echo htmlspecialchars($resultatActuel ?? '') ?></td>
                 <?php endif; ?>
+
                 <td class="actions">
-                    <?php if (!$rencontre->estPassee()): ?>
+                    <?php if (!$estPassee): ?>
                     <button name="action" value="ouvrirFeuilleDeMatch" class="info">Feuilles de match</button>
                     <button name="action" value="modifier" class="update">Modifier</button>
                     <button name="action" value="supprimer" class="delete">Supprimer</button>
                     <?php else: ?>
                     <button name="action" value="ouvrirEvaluations" class="info">Évaluations</button>
-                    <?php if ($rencontre->estPassee() && $rencontre->getResultat() ===null): ?>
+                    <?php if ($estPassee && $resultatActuel === null): ?>
                     <button class="create" name="action" value="enregistrerResultat">Enregistrer résultat</button>
                     <?php endif; ?>
                     <?php endif; ?>
