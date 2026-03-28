@@ -11,27 +11,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 ) {
     switch($_POST['action']) {
         case "ouvrirFeuilleDeMatch":
-            header('Location: /feuilleDeMatch/feuilleDeMatch?id='.$_POST['rencontreId']);
+            header('Location: ' . BASE_URL . '/feuilleDeMatch/feuilleDeMatch?id='.$_POST['rencontreId']);
             die();
         case "ouvrirEvaluations":
-            header('Location: /feuilleDeMatch/evaluation?id='.$_POST['rencontreId']);
+            header('Location: ' . BASE_URL . '/feuilleDeMatch/evaluation?id='.$_POST['rencontreId']);
             die();
         case "modifier":
-            header('Location: /rencontre/modifier?id='.$_POST['rencontreId']);
+            header('Location: ' . BASE_URL . '/rencontre/modifier?id='.$_POST['rencontreId']);
             die();
         case "enregistrerResultat":
             if (isset($_POST['resultat'])) {
                 if (!$controleur->enregistrerResultat($_POST['rencontreId'], $_POST['resultat'])) {
                     error_log("Erreur lors de la mise à jour du resultat");
                 }
-                header('Location: /rencontre');
+                header('Location: ' . BASE_URL . '/rencontre');
                 die();
             }
         case "supprimer":
             if (!$controleur->supprimerRencontre($_POST['rencontreId'])) {
                 error_log("Erreur lors de la suppression de la rencontre");
             }
-            header('Location: /rencontre');
+            header('Location: ' . BASE_URL . '/rencontre');
             die();
     }
 } else {
@@ -57,12 +57,11 @@ $rencontres = $controleur->listerToutesLesRencontres();
                 $rencontre['resultat'] ?? null
             );
 
-            // Calcul estPassee (comme le faisait la méthode du modèle)
             $dateMatch = new DateTime($rencontre['dateEtHeure']);
             $estPassee = $dateMatch < new DateTime();
             $resultatActuel = $rencontre['resultat'] ?? null;
         ?>
-        <form action="rencontre" method="post">
+        <form action="<?php echo BASE_URL; ?>/rencontre" method="post">
             <tr>
                 <input type="hidden" name="rencontreId" value="<?php echo htmlspecialchars($rencontre['rencontreId']); ?>" />
                 <td><?php echo $dateMatch->format('d/m/Y H:i') ?></td>

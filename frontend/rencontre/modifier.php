@@ -1,13 +1,11 @@
 <h1>Modifier une rencontre</h1>
-
 <?php
 
 use R301\Controleur\RencontreControleur;
-use R301\Modele\Rencontre\RencontreLieu;
 use R301\Component\Formulaire;
 
-
 $controleur = RencontreControleur::getInstance();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
         && isset($_GET['id'])
         && isset($_POST['dateHeure'])
@@ -17,31 +15,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 ) {
     if (
         $controleur->modifierRencontre(
-            $_GET['id'],
-            new DateTime($_POST['dateHeure']),
+            (int)$_GET['id'],
+            $_POST['dateHeure'],
             $_POST['equipeAdverse'],
             $_POST['adresse'],
-            RencontreLieu::fromName($_POST['lieu'])
+            $_POST['lieu']
         )
     ) {
-        header('Location: /rencontre');
-    }else{
+        header('Location: ' . BASE_URL . '/rencontre');
+        exit;
+    } else {
         error_log("Erreur lors de la modification de la rencontre");
     }
 } else {
     if (!isset($_GET['id'])) {
-        header("Location: /rencontre");
-    } else {
-        $rencontre = $controleur->getRenconterById($_GET['id']);
-
-        $formulaire = new Formulaire("/rencontre/modifier?id=" . $rencontre->getRencontreId());
-        $formulaire->setDateTime("Date", "dateHeure", date("Y-m-d H:i"), $rencontre->getDateEtHeure()->format("Y-m-d H:i"));
-        $formulaire->setText("Equipe adverse", "equipeAdverse", "", $rencontre->getEquipeAdverse());
-        $formulaire->setText("Adresse", "adresse", "", $rencontre->getAdresse());
-        $formulaire->setSelect("Lieu", array_map(function (RencontreLieu $lieu) {
-            return $lieu->name;
-        }, RencontreLieu::cases()), "lieu", $rencontre->getLieu()->name);
-        $formulaire->addButton("Submit", "update", "Valider", "Modifier");
-        echo $formulaire;
+        header('Location: ' . BASE_URL . '/rencontre');
+        exit;
     }
+
+    $rencontre = $controleur->getRencontreById((int)$_GET['id']);
+
+    if ($rencontre === null) {
+        header('Location: ' . BASE_URL . '/rencontre');
+        exit;
+    }
+
+    $formulaire = new Formulaire("modifier?id=" . $_GET['id']);
+
+    $dateValue = (new DateTime($rencontre['dateEtHeure']))->format('Y-m-d\TH:i');
+    $now = date('Y-m-d\TH:i');
+
+    $formulaire->setDateTime("Date", "dateHeure", $now, $dateValue);
+    $formulaire->setText("Equipe adverse", "equipeAdverse", "", $rencontre['equipeAdverse']);
+    $formulaire->setText("Adresse", "adresse", "", $rencontre['adresse']);
+    $formulaire->setSelect("Lieu", ['DOMICILE', 'EXTERIEUR'], "lieu", $rencontre['lieu']);
+
+    $formulaire->addButton("Submit", "update", "modifier", "Modifier");
+    echo $formulaire;
 }
