@@ -1,4 +1,6 @@
 <?php
+
+// Endpoint pour gérer les requêtes liées aux statistiques de l'équipe et des joueurs, en utilisant le contrôleur des statistiques pour récupérer les données et en répondant avec des codes de statut HTTP appropriés
 namespace R301;
 
 /**
@@ -45,7 +47,10 @@ namespace R301;
  *      <?php
  *      new \Foo\Bar\Qux\QuuxTest;
  */
+
+// Implémentation d'un autoloader PSR-4 pour charger automatiquement les classes en fonction de leur namespace et de leur emplacement dans le système de fichiers, permettant ainsi une organisation modulaire du code et une gestion efficace des dépendances
 class Psr4AutoloaderClass
+
 {
     /**
      * An associative array where the key is a namespace prefix and the value

@@ -1,17 +1,21 @@
 <?php
+
+// Point d'entrée pour les opérations liées aux commentaires, gérant les requêtes HTTP GET, POST et DELETE pour lister, ajouter et supprimer des commentaires respectivement, avec vérification de l'authentification via token et gestion des erreurs
 require_once 'Psr4AutoloaderClass.php';
 require_once 'token.php'; 
 
+// Importation des classes nécessaires
 use R301\Psr4AutoloaderClass;
 use R301\Controleur\CommentaireControleur;
 use R301\Controleur\JoueurControleur;
 
+// Enregistrement de l'autoloader pour charger automatiquement les classes du namespace R301
 $loader = new Psr4AutoloaderClass();
 $loader->register();
 $loader->addNamespace('R301', __DIR__);
-
 $controleur = CommentaireControleur::getInstance();
 
+// Fonction pour délivrer une réponse HTTP au client, en définissant le code de statut, le message et les données, et en encodant la réponse en JSON
 function deliver_response(int $status_code, string $status_message, $data = null): void
 {
     http_response_code($status_code);
@@ -30,20 +34,23 @@ function deliver_response(int $status_code, string $status_message, $data = null
     exit;
 }
 
+// Gestion de la méthode HTTP OPTIONS pour les requêtes CORS préflight, en répondant avec un code 204 No Content
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     deliver_response(204, "Méthode OPTIONS autorisée");
 }
 
-
+// Vérification de l'authentification via token, en répondant avec un code 401 Unauthorized si le token
 if (!verifyToken()) {
     deliver_response(401, "Token invalide ou manquant");
 }
 
+// Récupération de la méthode HTTP utilisée pour la requête
 $http_method = $_SERVER['REQUEST_METHOD'];
 
+// Gestion des différentes méthodes HTTP pour les opérations sur les commentaires, avec traitement des erreurs et réponses appropriées
 try {
     switch ($http_method) {
-
+        // Gestion de la méthode GET pour lister les commentaires d'un joueur, en vérifiant que le paramètre joueur_id est présent et en récupérant les commentaires via le contrôleur
         case 'GET':
             if (!isset($_GET['joueur_id'])) {
                 deliver_response(400, "joueur_id manquant (paramètre obligatoire pour lister les commentaires)");
@@ -62,6 +69,7 @@ try {
             deliver_response(200, "La requête a réussi", $commentaires);
             break;
 
+        // Gestion de la méthode POST pour ajouter un commentaire, en vérifiant que les champs nécessaires sont présents dans le JSON de la requête et en appelant le contrôleur pour créer le commentaire
         case 'POST':
             $data = json_decode(file_get_contents('php://input'), true);
 
@@ -83,7 +91,8 @@ try {
                 $success ? "Commentaire créé" : "Erreur lors de la création du commentaire"
             );
             break;
-
+            
+        // Gestion de la méthode DELETE pour supprimer un commentaire, en vérifiant que le paramètre id est présent et en appelant le contrôleur pour supprimer le commentaire
         case 'DELETE':
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");

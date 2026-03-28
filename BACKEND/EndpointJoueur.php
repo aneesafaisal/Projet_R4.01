@@ -1,16 +1,22 @@
 <?php
+
+// Point d'entrée pour les requêtes liées aux joueurs, gérant les méthodes HTTP GET, POST, PUT et DELETE pour récupérer, créer, modifier et supprimer des joueurs, avec vérification du token d'authentification et gestion des réponses JSON
 require_once 'Psr4AutoloaderClass.php';
 require_once 'token.php'; 
 
+// Importation des classes nécessaires
 use R301\Psr4AutoloaderClass;
 use R301\Controleur\JoueurControleur;
 
+// Enregistrement de l'autoloader pour charger automatiquement les classes du namespace R301
 $loader = new Psr4AutoloaderClass();
 $loader->register();
 $loader->addNamespace('R301', __DIR__);
 
+// Obtention de l'instance du contrôleur des joueurs pour gérer les opérations liées aux joueurs
 $controleur = JoueurControleur::getInstance();
 
+// Fonction pour délivrer une réponse HTTP au client, en définissant le code de statut, le message et les données, et en encodant la réponse en JSON
 function deliver_response(int $status_code, string $status_message, $data = null): void
 {
     http_response_code($status_code);
@@ -29,19 +35,24 @@ function deliver_response(int $status_code, string $status_message, $data = null
     exit;
 }
 
+// Gestion de la méthode HTTP OPTIONS pour les requêtes CORS préflight, en répondant avec un code 204 No Content
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     deliver_response(204, "Méthode OPTIONS autorisée");
 }
 
+// Vérification de l'authentification via token, en répondant avec un code 401 Unauthorized si le token
 if (!verifyToken()) {
     deliver_response(401, "Token invalide ou manquant");
 }
 
+// Récupération de la méthode HTTP utilisée pour la requête
 $http_method = $_SERVER['REQUEST_METHOD'];
 
+// Gestion des différentes méthodes HTTP pour les opérations sur les joueurs, avec traitement des erreurs et réponses appropriées
 try {
     switch ($http_method) {
 
+        // Gestion de la méthode GET pour récupérer les joueurs, en vérifiant si un paramètre id est présent pour récupérer un joueur spécifique ou tous les joueurs sinon
         case 'GET':
             if (isset($_GET['id'])) {
                 $id = (int)$_GET['id']; 
@@ -56,6 +67,7 @@ try {
             deliver_response(200, "La requête a réussi", $joueurs);
             break;
 
+        // Gestion de la méthode POST pour créer un nouveau joueur, en vérifiant que les données JSON sont valides et que tous les champs requis sont présents, puis en appelant le contrôleur pour ajouter le joueur
         case 'POST':
             $data = json_decode(file_get_contents('php://input'), true);
 
@@ -81,6 +93,7 @@ try {
             deliver_response($success ? 201 : 400, $success ? "Joueur créé" : "Erreur lors de la création");
             break;
 
+        // Gestion de la méthode PUT pour modifier un joueur existant, en vérifiant que l'id du joueur à modifier est présent, que les données JSON sont valides et que tous les champs requis sont présents, puis en appelant le contrôleur pour modifier le joueur    
         case 'PUT':
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
@@ -116,7 +129,8 @@ try {
 
             deliver_response($success ? 200 : 400, $success ? "Joueur mis à jour" : "Erreur lors de la mise à jour");
             break;
-
+            
+        // Gestion de la méthode DELETE pour supprimer un joueur, en vérifiant que l'id du joueur à supprimer est présent, puis en appelant le contrôleur pour supprimer le joueur et en répondant avec un code 200 OK si la suppression a réussi ou 404 Not Found si le joueur n'a pas été trouvé    
         case 'DELETE':
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");

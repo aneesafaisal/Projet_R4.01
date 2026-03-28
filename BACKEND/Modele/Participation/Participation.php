@@ -1,10 +1,13 @@
 <?php
 
+// Déclaration du namespace
 namespace R301\Modele\Participation;
 
+// Import des classes nécessaires
 use R301\Modele\Joueur\Joueur;
 use R301\Modele\Rencontre\Rencontre;
 
+// Classe représentant la participation d'un joueur à une rencontre, avec des informations sur son rôle (titulaire ou remplaçant), sa performance et son poste
 class Participation implements \JsonSerializable {
     private int $participationId;
     private Joueur $participant;
@@ -13,6 +16,7 @@ class Participation implements \JsonSerializable {
     private ?Performance $performance;
     private Poste $poste;
 
+    // Constructeur de la classe Participation, prenant en paramètre les informations nécessaires pour créer une participation
     public function __construct(
         int $participationId,
         Joueur $participant,
@@ -29,6 +33,7 @@ class Participation implements \JsonSerializable {
         $this->poste = $poste;
     }
 
+    // Getters et setters pour les propriétés de la classe Participation
     public function getParticipant(): Joueur
     {
         return $this->participant;
@@ -91,16 +96,17 @@ class Participation implements \JsonSerializable {
         $this->poste = $poste;
     }
 
+    // Méthode pour convertir l'objet Participation en un tableau associatif, utilisé pour la sérialisation JSON
     public function jsonSerialize(): array
-{
-    return [
-        'participationId'        => $this->participationId,
-        'participant'            => $this->participant,
-        'rencontre'              => $this->rencontre,
-        'titulaireOuRemplacant'  => $this->titulaireOuRemplacant->name,
-        'performance'            => $this->performance?->value,
-        'poste'                  => $this->poste->name
-    ];
-}
+    {
+        return [
+            'participationId'        => $this->participationId,
+            'participant'            => $this->participant,
+            'rencontre'              => $this->rencontre,
+            'titulaireOuRemplacant'  => $this->titulaireOuRemplacant->name,
+            'performance'            => $this->performance?->value,
+            'poste'                  => $this->poste->name
+        ];
+    }
 }
 

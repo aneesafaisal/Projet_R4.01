@@ -1,19 +1,24 @@
 <?php
 
+// Déclaration du namespace
 namespace R301\Modele\Joueur;
 
+// Import des classes nécessaires
 use DateTime;
 use PDO;
 use R301\Modele\DatabaseHandler;
 
+// Classe de gestion des opérations de base de données liées aux joueurs
 class JoueurDAO {
     private static ?JoueurDAO $instance = null;
     private readonly DatabaseHandler $database;
 
+    // Constructeur privé pour empêcher l'instanciation directe
     private function __construct() {
         $this->database = DatabaseHandler::getInstance();
     }
 
+    // Méthode pour obtenir l'instance unique de JoueurDAO
     public static function getInstance(): JoueurDAO {
         if (self::$instance == null) {
             self::$instance = new JoueurDAO();
@@ -21,6 +26,7 @@ class JoueurDAO {
         return self::$instance;
     }
 
+    // Méthode pour mapper une ligne de la base de données à un objet Joueur
     private function mapToJoueur(array $dbLine): Joueur {
         return new Joueur(
             $dbLine['joueur_id'],
@@ -34,6 +40,7 @@ class JoueurDAO {
         );
     }
 
+    // Récupère la liste de tous les joueurs présents dans la base de données
     public function selectAllJoueurs(): array {
         $query = 'SELECT * FROM joueur';
         $statement=$this->database->pdo()->prepare($query);
@@ -47,6 +54,7 @@ class JoueurDAO {
         }
     }
 
+    // Récupère la liste des joueurs correspondant à un statut donné
     public function selectJoueursByStatut(JoueurStatut $statut): array {
         $query = 'SELECT * FROM joueur WHERE statut = :statut';
         $statement=$this->database->pdo()->prepare($query);
@@ -61,7 +69,8 @@ class JoueurDAO {
         }
     }
 
-    public function selectJoueurById(int $joueurId): Joueur {
+    // Récupère un joueur à partir de son identifiant
+     public function selectJoueurById(int $joueurId): ?Joueur {
         $query = 'SELECT * FROM joueur WHERE joueur_id = :joueur_id';
         $statement=$this->database->pdo()->prepare($query);
         $statement->bindValue(':joueur_id', $joueurId);
@@ -72,6 +81,7 @@ class JoueurDAO {
         }
     }
 
+    // Insère un nouveau joueur dans la base de données
     public function insertJoueur(Joueur $joueurACreer): bool {
         $query = '
             INSERT INTO joueur(numero_licence,nom,prenom,date_naissance,taille,poids,statut)
@@ -89,6 +99,7 @@ class JoueurDAO {
         return $statement->execute();
     }
 
+    // Modifie les informations d’un joueur dans la base de données
     public function updateJoueur(Joueur $joueurAModifier): bool {
         $query = 'UPDATE joueur 
                   SET 
@@ -114,6 +125,7 @@ class JoueurDAO {
         return $statement->execute();
     }
 
+    // Supprime un joueur de la base de données à partir de son identifiant
     public function supprimerJoueur(string $joueurId) : bool {
         $deleteParticipations = 'DELETE FROM participation WHERE joueur_id = :joueur_id';
         $statement = $this->database->pdo()->prepare($deleteParticipations);

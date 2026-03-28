@@ -1,10 +1,15 @@
 <?php
 
+// Déclaration du namespace
 namespace R301\Modele\Joueur;
 
+// Import des classes nécessaires
 use DateTime;
 
+// Classe représentant un joueur de l'équipe
 class Joueur implements \JsonSerializable{
+
+    // Propriétés de la classe Joueur
     private int $joueurId;
     private string $nom;
     private string $prenom;
@@ -14,6 +19,7 @@ class Joueur implements \JsonSerializable{
     private int $poidsEnKg;
     private ?JoueurStatut $statut;
 
+    // Constructeur de la classe Joueur
     public function __construct(
         int $joueurId,
         string $nom,
@@ -34,11 +40,13 @@ class Joueur implements \JsonSerializable{
         $this->statut = $statut;
     }
 
+    // Méthode pour vérifier si le nom ou le prénom du joueur contient une chaîne de recherche donnée
     public function nomOuPrenomContient(string $recherche) : bool {
         return str_contains(strtolower($this->nom), strtolower($recherche))
             || str_contains(strtolower($this->prenom), strtolower($recherche));
     }
 
+    // Méthode pour obtenir une représentation textuelle du joueur, incluant son numéro de licence, son nom et son prénom, ainsi que son statut s'il n'est pas actif
     public function toString() : string {
         $selectableString = "";
         $selectableString .= $this->getNumeroDeLicence() . ' : ' . $this->nom . ' ' . $this->prenom;
@@ -49,6 +57,7 @@ class Joueur implements \JsonSerializable{
         return $selectableString;
     }
 
+    // Getters et setters pour les propriétés de la classe Joueur
     public function getJoueurId(): int
     {
         return $this->joueurId;
@@ -122,6 +131,7 @@ class Joueur implements \JsonSerializable{
         $this->statut = $statut;
     }
 
+    // Méthode pour convertir l'objet Joueur en format JSON
     public function jsonSerialize(): array
     {
         return [

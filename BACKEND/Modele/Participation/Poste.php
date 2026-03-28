@@ -1,6 +1,9 @@
 <?php
+
+// Déclaration du namespace
 namespace R301\Modele\Participation;
 
+// Enumération représentant les différents postes d'un joueur lors d'une rencontre (toplane, jungle, midlane, adc et support)
 enum Poste
 {
     case TOPLANE;
@@ -9,6 +12,7 @@ enum Poste
     case ADCARRY;
     case SUPPORT;
 
+    // Méthode statique permettant de récupérer un poste à partir de son nom (string)
     public static function fromName(string $name): ?Poste
     {
         foreach (self::cases() as $poste) {

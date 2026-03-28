@@ -1,8 +1,12 @@
 <?php
 
+// Déclaration du namespace
 namespace R301\Modele\Rencontre;
+
+// Importation des classes nécessaires
 use DateTime;
 
+// Classe représentant une rencontre, avec des informations sur la date, l'équipe adverse, l'adresse, le lieu et le résultat
 class Rencontre implements \JsonSerializable{
     private int $rencontreId;
     private DateTime $dateEtHeure;
@@ -11,6 +15,7 @@ class Rencontre implements \JsonSerializable{
     private ?RencontreLieu $lieu;
     private ?RencontreResultat $resultat;
 
+    // Constructeur de la classe Rencontre, prenant en paramètre les informations nécessaires pour créer une rencontre
     public function __construct(
         DateTime $dateEtheure,
         string $equipeAdverse,
@@ -27,6 +32,7 @@ class Rencontre implements \JsonSerializable{
         $this->resultat = $resultat;
     }
 
+    // Getters et setters pour les propriétés de la classe Rencontre
     public function getRencontreId(): int
     {
         return $this->rencontreId;
@@ -101,6 +107,7 @@ class Rencontre implements \JsonSerializable{
         return $this->dateEtHeure < new DateTime();
     }
 
+    // Méthode pour convertir l'objet Rencontre en un format JSON, utilisée pour la sérialisation
     public function jsonSerialize(): array
     {
         return [

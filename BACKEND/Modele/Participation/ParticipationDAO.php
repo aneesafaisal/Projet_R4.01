@@ -1,7 +1,9 @@
 <?php
 
+// Déclaration du namespace
 namespace R301\Modele\Participation;
 
+// Import des classes nécessaires
 use DateTime;
 use PDO;
 use R301\Modele\DatabaseHandler;
@@ -11,18 +13,21 @@ use R301\Modele\Rencontre\RencontreDAO;
 use R301\Modele\Rencontre\RencontreLieu;
 use R301\Modele\Rencontre\RencontreResultat;
 
+// Classe de Data Access Object (DAO) pour gérer les opérations de base de données liées à la classe Participation
 class ParticipationDAO {
     private static ?ParticipationDAO $instance = null;
     private readonly DatabaseHandler $database;
     private readonly JoueurDAO $joueurs;
     private readonly RencontreDAO $rencontres;
 
+    // Constructeur privé pour empêcher l'instanciation directe de la classe ParticipationDAO
     private function __construct() {
         $this->database = DatabaseHandler::getInstance();
         $this->joueurs = JoueurDAO::getInstance();
         $this->rencontres = RencontreDAO::getInstance();
     }
 
+    // Méthode pour obtenir l'instance unique de ParticipationDAO
     public static function getInstance(): ParticipationDAO {
         if (self::$instance == null) {
             self::$instance = new ParticipationDAO();
@@ -30,6 +35,7 @@ class ParticipationDAO {
         return self::$instance;
     }
 
+    // Méthode privée pour mapper une ligne de la base de données à un objet Participation
     private function mapToParticipation(array $dbLine): Participation {
         return new Participation(
             $dbLine['participation_id'],
@@ -41,6 +47,7 @@ class ParticipationDAO {
         );
     }
 
+    // Méthode pour récupérer la liste de toutes les participations présentes dans la base de données
     public function selectAllParticipations() {
         $query = 'SELECT * FROM participation';
         $statement=$this->database->pdo()->prepare($query);
@@ -54,6 +61,7 @@ class ParticipationDAO {
         }
     }
 
+    // Méthode pour récupérer la liste des participations associées à une rencontre donnée
     public function selectParticipationsByRencontreId(int $rencontreId): array {
         $query = 'SELECT * FROM participation WHERE rencontre_id = :rencontreId';
         $statement=$this->database->pdo()->prepare($query);
@@ -68,6 +76,7 @@ class ParticipationDAO {
         }
     }
 
+    // Méthode pour récupérer une participation à partir de son identifiant
     public function selectParticipationById(string $participationId): Participation
     {
         $query = 'SELECT * FROM participation WHERE participation_id = :participationId';
@@ -79,7 +88,8 @@ class ParticipationDAO {
             exit();
         }
     }
-
+    
+    // Méthode pour insérer une nouvelle participation dans la base de données
     public function insertParticipation(Participation $participationACreer): bool {
         $query = '
             INSERT INTO participation(joueur_id, rencontre_id, titulaire_ou_remplacant, poste)
@@ -94,6 +104,7 @@ class ParticipationDAO {
         return $statement->execute();
     }
 
+    // Méthode pour mettre à jour une participation existante dans la base de données
     public function updateParticipation(Participation $participationAModifier): bool {
         $query = 'UPDATE participation 
                   SET 
@@ -109,6 +120,7 @@ class ParticipationDAO {
         return $statement->execute();
     }
 
+    // Méthode pour mettre à jour la performance d'une participation existante dans la base de données
     public function updatePerformance(Participation $participationAModifier): bool {
         $query = 'UPDATE participation 
                   SET 
@@ -120,6 +132,7 @@ class ParticipationDAO {
         return $statement->execute();
     }
 
+    // Méthode pour supprimer une participation de la base de données à partir de son identifiant
     public function deleteParticipation(int $participationId) : bool {
         $query = 'DELETE FROM participation WHERE participation_id = :participationId';
         $statement=$this->database->pdo()->prepare($query);
@@ -127,6 +140,7 @@ class ParticipationDAO {
         return $statement->execute();
     }
 
+    // Méthode pour vérifier si un poste est déjà occupé pour une rencontre donnée, en fonction du poste et du rôle (titulaire ou remplaçant)
     public function lePosteEstDejaOccupe(int $rencontreId, Poste $poste, TitulaireOuRemplacant $titulaireOuRemplacant) : bool {
         $query = '
                 SELECT * FROM participation 
@@ -143,6 +157,7 @@ class ParticipationDAO {
         }
     }
 
+    // Méthode pour vérifier si un joueur est déjà inscrit sur la feuille de match d'une rencontre donnée
     public function lejoueurEstDejaSurLaFeuilleDeMatch(int $rencontreId, int $joueur_id) : bool {
         $query = '
                 SELECT * FROM participation 
