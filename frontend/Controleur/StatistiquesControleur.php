@@ -2,24 +2,11 @@
 
 namespace R301\Controleur;
 
-use DateTime;
-use R301\Modele\Joueur\Commentaire\Commentaire;
-use R301\Modele\Joueur\Commentaire\CommentaireDAO;
-use R301\Modele\Joueur\Joueur;
-use R301\Modele\Joueur\JoueurDAO;
-use R301\Modele\Joueur\JoueurStatut;
-use R301\Modele\Statistiques\StatistiquesEquipe;
-use R301\Modele\Statistiques\StatistiquesJoueurs;
-
 class StatistiquesControleur {
     private static ?StatistiquesControleur $instance = null;
-    private readonly RencontreControleur $rencontres;
-    private readonly ParticipationControleur $participations;
+    private $apiUrl = "http://localhost/Projet_R4.01/backend/EndpointStatistiques.php";
 
-    private function __construct() {
-        $this->rencontres = RencontreControleur::getInstance();
-        $this->participations = ParticipationControleur::getInstance();
-    }
+    private function __construct() {}
 
     public static function getInstance(): StatistiquesControleur {
         if (self::$instance == null) {
@@ -28,12 +15,37 @@ class StatistiquesControleur {
         return self::$instance;
     }
 
-    public function getStatistiquesEquipe() : StatistiquesEquipe {
-        return new StatistiquesEquipe($this->rencontres->listerToutesLesRencontres());
+    public function getStatistiquesEquipe() {
+        $options = [
+            'http' => [
+                'method'        => 'GET',
+                'ignore_errors' => true
+            ]
+        ];
+        $context  = stream_context_create($options);
+        $response = file_get_contents($this->apiUrl, false, $context);
+        $res = json_decode($response);
+        if ($res->status_code !== 200) {       
+            return [];
+        }
+        return $res->data->statistiques_equipe;
+        
     }
 
-    public function getStatistiquesJoueurs() : StatistiquesJoueurs {
-        return new StatistiquesJoueurs($this->participations->listerToutesLesParticipations(), $this->rencontres->listerToutesLesRencontres());
+    public function getStatistiquesJoueurs() {
+        $options = [
+            'http' => [
+                'method'        => 'GET',
+                'ignore_errors' => true
+            ]
+        ];
+        $context  = stream_context_create($options);
+        $response = file_get_contents($this->apiUrl, false, $context);
+        $res = json_decode($response);
+        if ($res->status_code !== 200) {       
+            return [];
+        }
+        return $res->data->statistiques_joueurs;
     }
 }
 
