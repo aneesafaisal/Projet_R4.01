@@ -45,8 +45,8 @@ try {
     switch ($http_method) {
 
         case 'GET':
-            if (isset($_GET['id'])) {
-                $id = (int)$_GET['id'];
+            if (isset($_GET['rencontre_id'])) {
+                $id = (int)$_GET['rencontre_id'];
                 $participation = $controleur->getFeuilleDeMatch($id);
                 if (empty($participation->getParticipants())) {
                     deliver_response(404, "Participation non trouvée");

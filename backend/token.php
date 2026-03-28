@@ -44,7 +44,7 @@ function verifyToken(){
         return true;
     }
 
-    $url = "https://.alwaysdata.net/api_auth/";
+    $url = "https://auth.alwaysdata.net/EndpointAuth.php";
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, $url);
