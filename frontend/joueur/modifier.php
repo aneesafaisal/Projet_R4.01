@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
             $_POST['nom'],
             $_POST['prenom'],
             $_POST['numeroDeLicence'],
-            $_POST['dateDeNaissance'], // string "Y-m-d", le controleur frontend n'attend plus un DateTime
+            $_POST['dateDeNaissance'],
             (int)$_POST['tailleEnCm'],
             (int)$_POST['poidsEnKg'],
             $_POST['statut']
