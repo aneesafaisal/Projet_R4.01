@@ -7,9 +7,14 @@ namespace R301\Controleur;
 class CommentaireControleur {
     private static ?CommentaireControleur $instance = null;
     private $apiUrl = "https://equipe.alwaysdata.net/EndpointCommentaire.php";
-
-    // Constructeur vide car on n'utilise plus le model Joueur
-    private function __construct() {}
+    private string $token;
+    
+    private function __construct() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $this->token = $_SESSION['token'] ?? '';
+    }
 
     // Méthode permettant d'obtenir l'instance unique du contrôleur
     public static function getInstance(): CommentaireControleur {

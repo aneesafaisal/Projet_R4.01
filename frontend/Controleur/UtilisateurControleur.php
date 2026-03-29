@@ -7,11 +7,14 @@ namespace R301\Controleur;
 class UtilisateurControleur {
     private static ?UtilisateurControleur $instance = null;
     private string $authApiUrl = "https://auth.alwaysdata.net/EndpointAuth.php";
-
-    // Token vide ici (c’est ce contrôleur qui va le récupérer)
-    private string $token = "";
-
-    private function __construct() {}
+    private string $token;
+    
+    private function __construct() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $this->token = $_SESSION['token'] ?? '';
+    }
 
     // Retourne l’instance unique du contrôleur
     public static function getInstance(): UtilisateurControleur {
