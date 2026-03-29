@@ -2,61 +2,67 @@
 
 namespace R301\Controleur;
 
-use DateTime;
-use R301\Modele\Joueur\Commentaire\Commentaire;
-use R301\Modele\Joueur\Commentaire\CommentaireDAO;
-use R301\Modele\Joueur\Joueur;
-use R301\Modele\Joueur\JoueurDAO;
-use R301\Modele\Joueur\JoueurStatut;
-use R301\Modele\Statistiques\StatistiquesEquipe;
-use R301\Modele\Statistiques\StatistiquesJoueurs;
-use R301\Modele\Utilisateur\UtilisateurDAO;
-
 class UtilisateurControleur {
     private static ?UtilisateurControleur $instance = null;
-    private readonly UtilisateurDAO $utilisateurs;
+    private string $authApiUrl = "https://auth.alwaysdata.net/EndpointAuth.php";
 
-    private function __construct() {
-        $this->utilisateurs = UtilisateurDAO::getInstance();
-    }
+    // Token vide ici (c’est ce contrôleur qui va le récupérer)
+    private string $token = "";
+
+    private function __construct() {}
 
     public static function getInstance(): UtilisateurControleur {
-        if (self::$instance == null) {
+        if (self::$instance === null) {
             self::$instance = new UtilisateurControleur();
         }
         return self::$instance;
     }
 
-    public function seConnecter(string $username, string $password): bool {
+    private function callAPI(string $method, string $url, array $data = null, bool $withToken = false): ?array {
+        $curl = curl_init();
 
+        switch ($method) {
+            case "POST":
+                curl_setopt($curl, CURLOPT_POST, true);
+                if ($data) {
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+                }
+                break;
+        }
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json'
+        ]);
+
+        // On n'envoie PAS le token pour la connexion
+        if ($withToken && $this->token !== "") {
+            curl_setopt($curl, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $this->token
+            ]);
+        }
+
+        $result = curl_exec($curl);
+        curl_close($curl);
+
+        if (!$result) return null;
+
+        return json_decode($result, true);
+    }
+
+    public function seConnecter(string $username, string $password): bool {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
-        $url = "https://equipe.alwaysdata.net/EndpointAuth.php";
-
-        $data = json_encode([
-            "login" => $username,
+        $data = [
+            "login"    => $username,
             "password" => $password
-        ]);
-
-        $options = [
-            "http" => [
-                "header"  => "Content-Type: application/json\r\n",
-                "method"  => "POST",
-                "content" => $data,
-                "timeout" => 5
-            ]
         ];
 
-        $context = stream_context_create($options);
-        $result = @file_get_contents($url, false, $context);
-
-        if ($result === false) {
-            return false;
-        }
-
-        $response = json_decode($result, true);
+        $response = $this->callAPI("POST", $this->authApiUrl, $data);
 
         if (!$response || !isset($response["token"])) {
             return false;
@@ -64,30 +70,36 @@ class UtilisateurControleur {
 
         $jwt = $response["token"];
 
-        $_SESSION['token'] = $jwt;
+        // Stockage en session + cookie
+        $_SESSION['token']    = $jwt;
         $_SESSION['username'] = $username;
 
         setcookie(
             "token",
             $jwt,
             [
-                "expires" => time() + 3600,
-                "path" => "/",
+                "expires"  => time() + 3600,
+                "path"     => "/",
                 "httponly" => true,
-                "secure" => false,
+                "secure"   => false,
                 "samesite" => "Strict"
             ]
         );
 
+        // On met à jour le token dans le contrôleur pour les futurs appels
+        $this->token = $jwt;
+
         return true;
     }
-    
+
     public function seDeconnecter(): void {
         setcookie("token", "", time() - 3600, "/");
+
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         session_destroy();
+
+        $this->token = "";
     }
 }
-?>

@@ -1,62 +1,48 @@
 <?php
+// ====================== GESTION DU LOGIN ======================
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["username"]) && isset($_POST["password"])) {
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"]) && isset($_POST["password"])) {
-    
-    $login = trim($_POST["username"]);
+    $username = trim($_POST["username"]);
     $password = trim($_POST["password"]);
 
-    $context = stream_context_create([
-        'http' => [
-            'method'  => 'POST',
-            'header'  => 'Content-Type: application/json',
-            'content' => json_encode(['login' => $login, 'password' => $password]),
-            'ignore_errors' => true,
-            'follow_location' => 0,
-        ]
-    ]);
+    $controleur = R301\Controleur\UtilisateurControleur::getInstance();
 
-    $response = file_get_contents('http://localhost/Projet_R4.01/authentification/EndpointAuth.php', false, $context);
-
-    $result = json_decode($response, true);
-
-    if (isset($result['token'])) {
-        $_SESSION['jwt'] = $result['token'];
-        $_SESSION['username'] = $login;
-        header("Location: /Projet_R4.01/joueur");
+    if ($controleur->seConnecter($username, $password)) {
+        // Redirection vers le tableau de bord (comme dans ton index.php)
+        header("Location: " . BASE_URL . "/tableauDeBord");
         exit();
     } else {
-        $erreur = isset($result['message']) ? $result['message'] : "Le nom d'Utilisateur ou le mot de passe est incorrect";
+        $erreur = "Nom d'utilisateur ou mot de passe incorrect";
     }
 }
 ?>
 
-<body>
-    <div class="CentredContainer">
-        <h1>Login</h1>
-        <div class="container">
-            <form action="/Projet_R4.01/login" method="post">
-                <div class="row">
-                    <div class="col-20">
-                        <label for="username">Username : </label>
-                    </div>
-                    <div class="col-80">
-                        <input type="text" id="username" name="username"/><br> 
-                    </div>
-                </div> 
-                <div class="row">
-                    <div class="col-20">
-                        <label for="password">Password : </label>
-                    </div>
-                    <div class="col-80">
-                        <input type="password" id="pass" name="password"/><br>
-                    </div>
+<div class="CentredContainer">
+    <h1>Login</h1>
+    <div class="container">
+        <form action="<?= BASE_URL ?>/login" method="post">
+            <div class="row">
+                <div class="col-20">
+                    <label for="username">Username :</label>
                 </div>
-                <div class="row">
-                    <input type="submit" value="Login"/>
+                <div class="col-80">
+                    <input type="text" id="username" name="username" required><br>
                 </div>
-            </form>
-        </div>
-        <p><?php if (isset($erreur)) { echo $erreur; } ?></p>
+            </div>
+            <div class="row">
+                <div class="col-20">
+                    <label for="password">Password :</label>
+                </div>
+                <div class="col-80">
+                    <input type="password" id="password" name="password" required><br>
+                </div>
+            </div>
+            <div class="row">
+                <input type="submit" value="Se connecter"/>
+            </div>
+        </form>
     </div>
-</body>
-</html>
+    <?php if (isset($erreur)): ?>
+        <p style="color:red; font-weight:bold;"><?= htmlspecialchars($erreur) ?></p>
+    <?php endif; ?>
+</div>
