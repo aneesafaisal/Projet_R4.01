@@ -72,52 +72,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                 <th style="width:15%">Poste</th>
                 <th style="width:25%">Joueur</th>
                 <th style="width:15%">Performance</th>
-                <th style="width:20%">Mettre à jour la performance</th>
-                <th style="width:25%; min-width: 150px;"></th>
+                <th style="width:45%">Mettre à jour la performance</th>
             </tr>
 
             <?php foreach ($postes as $poste):
-                // Recherche du participant correspondant
-                $participant = null;
-                foreach ($feuilleDeMatch as $p) {
-                    if (isset($p['poste']) && $p['poste'] === $poste &&
-                        isset($p['titulaire_ou_remplacant']) && $p['titulaire_ou_remplacant'] === $type) {
-                        $participant = $p;
-                        break;
-                    }
-                }
+    $participant = null;
+    foreach ($feuilleDeMatch as $p) {
+        if (isset($p['poste']) && $p['poste'] === $poste &&
+            isset($p['titulaire_ou_remplacant']) && $p['titulaire_ou_remplacant'] === $type) {
+            $participant = $p;
+            break;
+        }
+    }
 
-                $selectedValue = $participant['performance'] ?? null;
-                $select = new SelectPerformance(null, $selectedValue);
+    $selectedValue = isset($participant['performance']) ? $participant['performance'] : null;
+    $select = new SelectPerformance(null, $selectedValue);
 
-                $joueurString = '';
-                if ($participant !== null && isset($participant['joueur'])) {
-                    $joueurString = trim(($participant['joueur']['nom'] ?? '') . ' ' . ($participant['joueur']['prenom'] ?? ''));
-                }
+    $joueurString = '';
+    if ($participant !== null && isset($participant['joueur'])) {
+        $nom = isset($participant['joueur']['nom']) ? $participant['joueur']['nom'] : '';
+        $prenom = isset($participant['joueur']['prenom']) ? $participant['joueur']['prenom'] : '';
+        $joueurString = trim($nom . ' ' . $prenom);
+    }
 
-                $performanceString = $participant['performance'] ?? '';
-                $rencontreId = $participant['rencontreId'] ?? ($participant['rencontre']['rencontreId'] ?? $_GET['id'] ?? '');
-                $participationId = $participant['participationId'] ?? ($participant['id'] ?? '');
-            ?>
-            <form action="<?= BASE_URL ?>/feuilleDeMatch/evaluation" method="post">
-                <tr>
-                    <input type="hidden" name="rencontreId" value="<?= htmlspecialchars($rencontreId) ?>" />
-                    <input type="hidden" name="participationId" value="<?= htmlspecialchars($participationId) ?>" />
-                    <td><?= htmlspecialchars($poste) ?></td>
-                    <td><?= htmlspecialchars($joueurString) ?></td>
-                    <td><?= htmlspecialchars($performanceString) ?></td>
-                    <td><?= $select->toHTML() ?></td>
-                    <?php if ($participant !== null): ?>
-                    <td class="actions">
-                        <button class="update" type="submit" name="action" value="update">Mettre à jour</button>
-                        <button class="delete" type="submit" name="action" value="delete" style="margin-left: 8px">Supprimer</button>
-                    </td>
-                    <?php else: ?>
-                    <td></td>
-                    <?php endif; ?>
-                </tr>
-            </form>
-            <?php endforeach; ?>
+    $performanceString = isset($participant['performance']) ? $participant['performance'] : '';
+
+    if (isset($participant['rencontreId'])) {
+        $rencontreId = $participant['rencontreId'];
+    } elseif (isset($participant['rencontre']['rencontreId'])) {
+        $rencontreId = $participant['rencontre']['rencontreId'];
+    } else {
+        $rencontreId = isset($_GET['id']) ? $_GET['id'] : '';
+    }
+
+    if (isset($participant['participationId'])) {
+        $participationId = $participant['participationId'];
+    } elseif (isset($participant['id'])) {
+        $participationId = $participant['id'];
+    } else {
+        $participationId = '';
+    }
+?>
+<tr>
+    <td><?= htmlspecialchars($poste) ?></td>
+    <td><?= htmlspecialchars($joueurString) ?></td>
+    <td><?= htmlspecialchars($performanceString) ?></td>
+    <td colspan="2">
+        <?php if ($participant !== null): ?>
+        <form action="<?= BASE_URL ?>/feuilleDeMatch/evaluation" method="post" style="display: flex; align-items: center; gap: 8px;">
+            <input type="hidden" name="rencontreId" value="<?= htmlspecialchars($rencontreId) ?>" />
+            <input type="hidden" name="participationId" value="<?= htmlspecialchars($participationId) ?>" />
+            <?= $select->toHTML() ?>
+            <button class="update" type="submit" name="action" value="update">Mettre à jour</button>
+            <button class="delete" type="submit" name="action" value="delete">Supprimer</button>
+        </form>
+        <?php endif; ?>
+    </td>
+</tr>
+<?php endforeach; ?>
         </table>
     <?php endforeach; ?>
 </div>

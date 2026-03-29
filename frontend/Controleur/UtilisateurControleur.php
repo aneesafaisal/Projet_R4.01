@@ -28,18 +28,66 @@ class UtilisateurControleur {
     }
 
     public function seConnecter(string $username, string $password): bool {
-        $utilisateurEssayantDeSeConnecter = $this->utilisateurs->getUtilisateur($username);
 
-        if ($utilisateurEssayantDeSeConnecter->getMotDePasse() == $password) {
-            session_set_cookie_params(1800);
-            ini_set('session.gc_maxlifetime', 1800);
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
-            $_SESSION['username'] = $username;
-            return true;
-        } else {
+        $url = "https://auth.alwaysdata.net/EndpointAuth.php";
+
+        $data = json_encode([
+            "login" => $username,
+            "password" => $password
+        ]);
+
+        $options = [
+            "http" => [
+                "header"  => "Content-Type: application/json\r\n",
+                "method"  => "POST",
+                "content" => $data,
+                "timeout" => 5
+            ]
+        ];
+
+        $context = stream_context_create($options);
+        $result = @file_get_contents($url, false, $context);
+
+        if ($result === false) {
             return false;
         }
+
+        $response = json_decode($result, true);
+
+        if (!$response || !isset($response["token"])) {
+            return false;
+        }
+
+        $jwt = $response["token"];
+
+        $_SESSION['token'] = $jwt;
+        $_SESSION['username'] = $username;
+
+        setcookie(
+            "token",
+            $jwt,
+            [
+                "expires" => time() + 3600,
+                "path" => "/",
+                "httponly" => true,
+                "secure" => false,
+                "samesite" => "Strict"
+            ]
+        );
+
+        return true;
+    }
+    
+    public function seDeconnecter(): void {
+        setcookie("token", "", time() - 3600, "/");
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        session_destroy();
     }
 }
-
 ?>

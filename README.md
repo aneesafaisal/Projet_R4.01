@@ -23,7 +23,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
     ```bash
     curl -X POST https://auth.kilya.coop/api/auth \
          -H "Content-Type: application/json" \
-         -d '{"login":"admin","password":"admin"}'
+         -d '{"login":"admin","password":"adminabc"}'
     ```
   - **Exemple de réponse :**
     ```json

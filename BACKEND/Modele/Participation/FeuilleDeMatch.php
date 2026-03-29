@@ -80,5 +80,29 @@ class FeuilleDeMatch {
         }
         return true;
     }
+
+    // Méthode pour convertir la feuille de match en un tableau associatif, facilitant la sérialisation en JSON pour les réponses d'API
+    public function toArray(): array {
+    $result = [];
+    foreach ($this->participants as $participant) {
+        $joueur = $participant->getParticipant();
+        $rencontre = $participant->getRencontre();
+        $result[] = [
+            'participationId'        => $participant->getParticipationId(),
+            'poste'                  => $participant->getPoste()->name,
+            'titulaire_ou_remplacant'=> $participant->getTitulaireOuRemplacant()->name,
+            'performance'            => $participant->getPerformance() !== null ? $participant->getPerformance()->name : null,
+            'joueur'                 => [
+                'joueurId' => $joueur->getJoueurId(),
+                'nom'      => $joueur->getNom(),
+                'prenom'   => $joueur->getPrenom(),
+            ],
+            'rencontre'              => [
+                'rencontreId' => $rencontre->getRencontreId(),
+            ]
+        ];
+    }
+    return $result;
+}
 }
 
