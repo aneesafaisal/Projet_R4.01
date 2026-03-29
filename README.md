@@ -45,7 +45,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
   - **Paramètres :** `id` (int, optionnel)  
   - **Exemple de requête :**  
     ```
-        https://frontend.kilya.coop/api/joueur/1
+        https://equipe.alwaysdata.net/Endpointjoueur/1
     ```
   - **Exemple de réponse :**
     ```json
@@ -59,7 +59,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
     - `nom`, `prenom`, `numeroDeLicence`, `dateDeNaissance` (YYYY-MM-DD), `tailleEnCm`, `poidsEnKg`, `statut`  
   - **Exemple de requête :**
     ```bash
-    curl -X POST https://frontend.kilya.coop/api/joueur \
+    curl -X POST https://equipe.alwaysdata.net/Endpointjoueur \
          -H "Content-Type: application/json" \
          -d '{"nom":"Doe","prenom":"John","numeroDeLicence":"123","dateDeNaissance":"2000-01-01","tailleEnCm":180,"poidsEnKg":75,"statut":"actif"}'
     ```
@@ -71,7 +71,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
   - **Paramètres :** `id` (query string), mêmes champs que POST  
   - **Exemple de requête :**
     ```bash
-    curl -X PUT https://frontend.kilya.coop/api/joueur/1 \
+    curl -X PUT https://equipe.alwaysdata.net/Endpointjoueur/1 \
          -H "Content-Type: application/json" \
          -d '{...}'
     ```
@@ -83,7 +83,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
   - **Paramètres :** `id` (query string)  
   - **Exemple de requête :**
     ```bash
-    curl -X DELETE https://frontend.kilya.coop/api/joueur/1
+    curl -X DELETE https://equipe.alwaysdata.net/Endpointjoueur/1
     ```
   - **Exemple de réponse :** 200 : Joueur supprimé avec succès 
   - **Codes d’erreur :** 404 : Joueur non trouvé  
@@ -99,7 +99,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
   - **Paramètres :** `joueur_id` (int, obligatoire)  
   - **Exemple de requête :**
     ```bash
-    curl https://frontend.kilya.coop/api/commentaire?joueur_id=1
+    curl https://equipe.alwaysdata.net/Endpointcommentaire?joueur_id=1
     ```
   - **Exemple de réponse :**
     ```json
@@ -112,7 +112,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
   - **Paramètres JSON :** `contenu` (string), `joueur_id` (int)  
   - **Exemple de requête :**
     ```bash
-    curl -X POST https://frontend.kilya.coop/api/commentaire \
+    curl -X POST https://equipe.alwaysdata.net/Endpointcommentaire \
          -H "Content-Type: application/json" \
          -d '{"contenu":"Bien joué","joueur_id":1}'
     ```
@@ -124,7 +124,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
   - **Paramètres :** `id` (query string)  
   - **Exemple de requête :**
     ```bash
-    curl -X DELETE https://frontend.kilya.coop/api/commentaire?id=1
+    curl -X DELETE https://equipe.alwaysdata.net/Endpointcommentaire?id=1
     ```
   - **Exemple de réponse :** 200 : Commentaire supprimé  
   - **Codes d’erreur :** 400 : ID manquante, 404 : Commentaire non trouvé  
@@ -140,7 +140,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
   - **Paramètres :** `id` (int, optionnel)  
   - **Exemple de requête :**
     ```bash
-    curl https://frontend.kilya.coop/api/participation/1
+    curl https://equipe.alwaysdata.net/Endpointparticipation/1
     ```
   - **Exemple de réponse :** 200 : La requête a réussi 
   - **Codes d’erreur :** 404 : Participation non trouvée  
@@ -150,7 +150,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
   - **Paramètres JSON :** `joueur_id`, `rencontre_id`, `poste`, `titulaire_ou_remplacant`  
   - **Exemple de requête :**
     ```bash
-    curl -X POST https://frontend.kilya.coop/api/participation \
+    curl -X POST https://equipe.alwaysdata.net/Endpointparticipation \
          -H "Content-Type: application/json" \
          -d '{"joueur_id":1,"rencontre_id":10,"poste":"gardien","titulaire_ou_remplacant":"titulaire"}'
     ```
@@ -162,7 +162,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
   - **Paramètres JSON :** `joueur_id`, `poste`, `titulaire_ou_remplacant`  
   - **Exemple de requête :**
     ```bash
-    curl -X PUT https://frontend.kilya.coop/api/participation/1 \
+    curl -X PUT https://equipe.alwaysdata.net/Endpointparticipation/1 \
          -H "Content-Type: application/json" \
          -d '{...}'
     ```
@@ -174,7 +174,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
   - **Paramètres JSON :** `performance`  
   - **Exemple de requête :**
     ```bash
-    curl -X PATCH https://frontend.kilya.coop/api/participation/1 \
+    curl -X PATCH https://equipe.alwaysdata.net/Endpointparticipation/1 \
          -H "Content-Type: application/json" \
          -d '{"performance":5}'
     ```
@@ -186,7 +186,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
   - **Paramètres :** `id` (query string)  
   - **Exemple de requête :**
     ```bash
-    curl -X DELETE https://frontend.kilya.coop/api/participation/1
+    curl -X DELETE https://equipe.alwaysdata.net/Endpointparticipation/1
     ```
   - **Exemple de réponse :** 200 : Participation supprimée  
   - **Codes d’erreur :** 400 : Impossible de supprimer, 404 : Participation non trouvée  
@@ -200,7 +200,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
   - **Paramètres :** `id` (int, optionnel)  
   - **Exemple de requête :**
     ```bash
-    curl https://frontend.kilya.coop/api/rencontre/1
+    curl https://equipe.alwaysdata.net/Endpointrencontre/1
     ```
   - **Exemple de réponse :**
     ```json
@@ -217,7 +217,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
     - `lieu` (string, DOMICILE ou EXTERIEUR)  
   - **Exemple de requête :**
     ```bash
-    curl -X POST https://frontend.kilya.coop/api/rencontre \
+    curl -X POST https://equipe.alwaysdata.net/Endpointrencontre \
          -H "Content-Type: application/json" \
          -d '{"dateHeure":"2026-04-01T15:00:00","equipeAdverse":"Lyon","adresse":"Stade Municipal","lieu":"DOMICILE"}'
     ```
@@ -234,7 +234,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
     - `resultat` (string)  
   - **Exemple de requête :**
     ```bash
-    curl -X PATCH https://frontend.kilya.coop/api/rencontre/1 \
+    curl -X PATCH https://equipe.alwaysdata.net/Endpointrencontre/1 \
          -H "Content-Type: application/json" \
          -d '{"resultat":"3-1"}'
     ```
@@ -255,7 +255,7 @@ Permet la connexion d’un utilisateur et la récupération d’un JWT pour les 
   - **Description :** Récupère les statistiques de l’équipe et des joueurs  
   - **Exemple de requête :**
     ```bash
-    curl https://frontend.kilya.coop/api/statistiques
+    curl https://equipe.alwaysdata.net/Endpointstatistiques
     ```
   - **Exemple de réponse :**
     ```json
