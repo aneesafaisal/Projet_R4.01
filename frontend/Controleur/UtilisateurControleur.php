@@ -1,7 +1,9 @@
 <?php
 
+// Déclaration du namespace
 namespace R301\Controleur;
 
+// Contrôleur gérant l’authentification des utilisateurs
 class UtilisateurControleur {
     private static ?UtilisateurControleur $instance = null;
     private string $authApiUrl = "https://auth.alwaysdata.net/EndpointAuth.php";
@@ -11,6 +13,7 @@ class UtilisateurControleur {
 
     private function __construct() {}
 
+    // Retourne l’instance unique du contrôleur
     public static function getInstance(): UtilisateurControleur {
         if (self::$instance === null) {
             self::$instance = new UtilisateurControleur();
@@ -18,6 +21,8 @@ class UtilisateurControleur {
         return self::$instance;
     }
 
+    // Permet d'appeler l'API du backend
+    // On a au début utilisé cette Fonction pour les appels a l'API 
     private function callAPI(string $method, string $url, array $data = null, bool $withToken = false): ?array {
         $curl = curl_init();
 
@@ -36,7 +41,6 @@ class UtilisateurControleur {
             'Content-Type: application/json'
         ]);
 
-        // On n'envoie PAS le token pour la connexion
         if ($withToken && $this->token !== "") {
             curl_setopt($curl, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
@@ -52,6 +56,7 @@ class UtilisateurControleur {
         return json_decode($result, true);
     }
 
+    // Permet à un utilisateur de se connecter en vérifiant ses identifiants
     public function seConnecter(string $username, string $password): bool {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -92,6 +97,7 @@ class UtilisateurControleur {
         return true;
     }
 
+    // Permet de se deconnecter
     public function seDeconnecter(): void {
         setcookie("token", "", time() - 3600, "/");
 

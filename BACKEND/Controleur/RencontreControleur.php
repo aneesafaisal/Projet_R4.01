@@ -109,7 +109,6 @@ class RencontreControleur
         }
     }
 
-    // Supprime une rencontre (uniquement si aucun résultat n’est enregistré)
     // Supprime une rencontre (uniquement si aucun résultat n'est enregistré)
     public function supprimerRencontre(int $rencontreId): bool
     {

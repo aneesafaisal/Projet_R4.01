@@ -1,14 +1,18 @@
 <?php
 
+// Déclaration du namespace pour organiser le code
 namespace R301\Controleur;
 
+// Contrôleur gérant les opérations liées aux joueurs
 class JoueurControleur {
     private static ?JoueurControleur $instance = null;
     private string $apiUrl = "https://equipe.alwaysdata.net/EndpointJoueur.php";
     private string $token = "";
 
+    // Constructeur vide car on n'utilise plus les models
     private function __construct() {}
 
+    // Retourne l’instance unique du contrôleur
     public static function getInstance(): JoueurControleur {
         if (self::$instance === null) {
             self::$instance = new JoueurControleur();
@@ -16,6 +20,8 @@ class JoueurControleur {
         return self::$instance;
     }
 
+    // Permet d'appeler l'API du backend
+    // On a au début utilisé cette Fonction pour les appels a l'API 
     private function callAPI(string $method, string $url, array $data = null): ?array {
         $curl = curl_init();
 
@@ -59,42 +65,7 @@ class JoueurControleur {
         return json_decode($result, true);
     }
 
-    public function listerTousLesJoueurs(): array {
-        $response = $this->callAPI("GET", $this->apiUrl);
-        
-        if ($response === null || $response['status_code'] !== 200) {
-            return [];
-        }
-
-        return $response['data'] ?? [];
-    }
-
-    public function getJoueurById(int $id): ?array {
-        $response = $this->callAPI("GET", $this->apiUrl, ['id' => $id]);
-
-        if ($response === null || $response['status_code'] !== 200) {
-            return null;
-        }
-
-        return $response['data'];
-    }
-
-    public function listerLesJoueursSelectionnablesPourUnMatch(int $rencontreId): array {
-        $tous = $this->listerTousLesJoueurs();
-        $selectionnables = [];
-        $participationCtrl = ParticipationControleur::getInstance();
-
-        foreach ($tous as $joueur) {
-            if (($joueur['statut'] ?? '') === 'ACTIF' &&
-                !$participationCtrl->lejoueurEstDejaSurLaFeuilleDeMatch($rencontreId, $joueur['joueurId'])) {
-                
-                $selectionnables[] = $joueur;
-            }
-        }
-
-        return $selectionnables;
-    }
-
+    // Ajoute un nouveau joueur
     public function ajouterJoueur(
         string $nom,
         string $prenom,
@@ -119,6 +90,46 @@ class JoueurControleur {
         return $response !== null && $response['status_code'] === 201;
     }
 
+    // Récupère un joueur par son identifiant
+    public function getJoueurById(int $id): ?array {
+        $response = $this->callAPI("GET", $this->apiUrl, ['id' => $id]);
+
+        if ($response === null || $response['status_code'] !== 200) {
+            return null;
+        }
+
+        return $response['data'];
+    }
+
+    // Liste les joueurs actifs pouvant être sélectionnés pour un match
+    public function listerLesJoueursSelectionnablesPourUnMatch(int $rencontreId): array {
+        $tous = $this->listerTousLesJoueurs();
+        $selectionnables = [];
+        $participationCtrl = ParticipationControleur::getInstance();
+
+        foreach ($tous as $joueur) {
+            if (($joueur['statut'] ?? '') === 'ACTIF' &&
+                !$participationCtrl->lejoueurEstDejaSurLaFeuilleDeMatch($rencontreId, $joueur['joueurId'])) {
+                
+                $selectionnables[] = $joueur;
+            }
+        }
+
+        return $selectionnables;
+    }
+
+    // Récupère tous les joueurs
+    public function listerTousLesJoueurs(): array {
+        $response = $this->callAPI("GET", $this->apiUrl);
+        
+        if ($response === null || $response['status_code'] !== 200) {
+            return [];
+        }
+
+        return $response['data'] ?? [];
+    }
+
+    // Modifie les informations d’un joueur
     public function modifierJoueur(
         int $id,
         string $nom,
@@ -144,6 +155,7 @@ class JoueurControleur {
         return $response !== null && $response['status_code'] === 200;
     }
 
+    // Supprime un joueur
     public function supprimerJoueur(int $id): bool {
         $response = $this->callAPI("DELETE", $this->apiUrl . "?id=" . $id);
 

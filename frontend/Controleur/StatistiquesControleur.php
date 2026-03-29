@@ -1,13 +1,17 @@
 <?php
 
+// Déclaration du namespace
 namespace R301\Controleur;
 
+// Contrôleur dédié au calcul des statistiques
 class StatistiquesControleur {
     private static ?StatistiquesControleur $instance = null;
     private $apiUrl = "https://equipe.alwaysdata.net/EndpointStatistiques.php";
 
+    // Constructeur vide car on n'utilise plus les models
     private function __construct() {}
 
+    // Retourne l'instance unique du contrôleu
     public static function getInstance(): StatistiquesControleur {
         if (self::$instance == null) {
             self::$instance = new StatistiquesControleur();
@@ -15,6 +19,7 @@ class StatistiquesControleur {
         return self::$instance;
     }
 
+    // Calcule et retourne les statistiques globales de l’équipe
     public function getStatistiquesEquipe() {
         $options = [
             'http' => [
@@ -32,6 +37,7 @@ class StatistiquesControleur {
         
     }
 
+    // Calcule et retourne les statistiques des joueurs
     public function getStatistiquesJoueurs() {
         $options = [
             'http' => [

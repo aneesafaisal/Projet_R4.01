@@ -1,14 +1,18 @@
 <?php
 
+// Déclaration du namespace
 namespace R301\Controleur;
 
+// Contrôleur gérant les opérations liées aux rencontres (matchs)
 class RencontreControleur {
     private static ?RencontreControleur $instance = null;
     private string $apiUrl = "https://equipe.alwaysdata.net/EndpointRencontre.php";
     private string $token = "";
 
+    // Constructeur vide car on n'utilise plus les models
     private function __construct() {}
 
+    // Retourne l'instance unique du contrôleur
     public static function getInstance(): RencontreControleur {
         if (self::$instance === null) {
             self::$instance = new RencontreControleur();
@@ -16,6 +20,8 @@ class RencontreControleur {
         return self::$instance;
     }
 
+    // Permet d'appeler l'API du backend
+    // On a au début utilisé cette Fonction pour les appels a l'API 
     private function callAPI(string $method, string $url, array $data = null): ?array {
         $curl = curl_init();
 
@@ -66,26 +72,7 @@ class RencontreControleur {
         return json_decode($result, true);
     }
 
-    public function listerToutesLesRencontres(): array {
-        $response = $this->callAPI("GET", $this->apiUrl);
-        
-        if ($response === null || $response['status_code'] !== 200) {
-            return [];
-        }
-
-        return $response['data'] ?? [];
-    }
-
-    public function getRencontreById(int $id): ?array {
-        $response = $this->callAPI("GET", $this->apiUrl, ['id' => $id]);
-
-        if ($response === null || $response['status_code'] !== 200) {
-            return null;
-        }
-
-        return $response['data'];
-    }
-
+    // Ajoute une nouvelle rencontre
     public function ajouterRencontre(
         string $dateHeure,
         string $equipeAdverse,
@@ -103,6 +90,39 @@ class RencontreControleur {
         return $response !== null && $response['status_code'] === 201;
     }
 
+    // Enregistre le résultat d’une rencontre
+    public function enregistrerResultat(
+        int $id,
+        string $resultat
+    ): bool {
+        $data = ['resultat' => $resultat];
+        $response = $this->callAPI("PATCH", $this->apiUrl . "?id=" . $id, $data);
+        return $response !== null && $response['status_code'] === 200;
+    }
+
+    // Récupère une rencontre par son identifiant
+    public function getRencontreById(int $id): ?array {
+        $response = $this->callAPI("GET", $this->apiUrl, ['id' => $id]);
+
+        if ($response === null || $response['status_code'] !== 200) {
+            return null;
+        }
+
+        return $response['data'];
+    }
+
+    // Liste toutes les rencontres
+    public function listerToutesLesRencontres(): array {
+        $response = $this->callAPI("GET", $this->apiUrl);
+        
+        if ($response === null || $response['status_code'] !== 200) {
+            return [];
+        }
+
+        return $response['data'] ?? [];
+    }
+
+    // Modifie une rencontre existante
     public function modifierRencontre(
         int $id,
         string $dateHeure,
@@ -121,15 +141,7 @@ class RencontreControleur {
         return $response !== null && $response['status_code'] === 200;
     }
 
-    public function enregistrerResultat(
-        int $id,
-        string $resultat
-    ): bool {
-        $data = ['resultat' => $resultat];
-        $response = $this->callAPI("PATCH", $this->apiUrl . "?id=" . $id, $data);
-        return $response !== null && $response['status_code'] === 200;
-    }
-
+    // Supprime une rencontre (uniquement si aucun résultat n’est enregistré)
     public function supprimerRencontre(int $id): bool {
         $response = $this->callAPI("DELETE", $this->apiUrl . "?id=" . $id);
         return $response !== null && $response['status_code'] === 200;

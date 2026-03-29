@@ -1,14 +1,18 @@
 <?php
 
+// Déclaration du namespace
 namespace R301\Controleur;
 
+// Contrôleur gérant les participations des joueurs aux matchs
 class ParticipationControleur {
     private static ?ParticipationControleur $instance = null;
     private string $apiUrl = "https://equipe.alwaysdata.net/EndpointParticipation.php";
-    private string $token = "TON_TOKEN_ICI";
+    private string $token = "";
 
+    // Constructeur vide car on n'utilise plus les models
     private function __construct() {}
 
+    // Retourne l’instance unique
     public static function getInstance(): ParticipationControleur {
         if (self::$instance === null) {
             self::$instance = new ParticipationControleur();
@@ -16,6 +20,8 @@ class ParticipationControleur {
         return self::$instance;
     }
 
+    // Permet d'appeler l'API du backend
+    // On a au début utilisé cette Fonction pour les appels a l'API 
     private function callAPI(string $method, string $url, array $data = null): ?array {
         $curl = curl_init();
 
@@ -59,6 +65,7 @@ class ParticipationControleur {
         return json_decode($result, true);
     }
 
+    // Vérifie si un joueur est déjà présent sur la feuille de match
     public function lejoueurEstDejaSurLaFeuilleDeMatch(int $rencontreId, int $joueurId) : bool {
         $options = [
             'http' => [
@@ -73,6 +80,7 @@ class ParticipationControleur {
         return isset($res['data']) && $res['data'] === true;
     }
 
+    // Liste toutes les participations
     public function listerToutesLesParticipations() : array {
         $options = [
             'http' => [
@@ -86,6 +94,7 @@ class ParticipationControleur {
         return $res['data'] ?? [];
     }
 
+    // Récupère la feuille de match d’une rencontre
     public function getFeuilleDeMatch(int $rencontreId): array {
         $response = $this->callAPI("GET", $this->apiUrl, ['rencontre_id' => $rencontreId]);
         if ($response === null || $response['status_code'] !== 200) {
@@ -94,6 +103,7 @@ class ParticipationControleur {
         return $response['data'] ?? [];
     }
     
+    // Assigne un joueur à une rencontre avec un poste et un statut
     public function assignerUnParticipant(
         int $joueurId,
         int $rencontreId,
@@ -120,6 +130,7 @@ class ParticipationControleur {
         return isset($res['status_code']) && $res['status_code'] === 201;
     }
 
+    // Modifie une participation existante
     public function modifierParticipation(
         int $participationId,
         string $poste,
@@ -146,6 +157,7 @@ class ParticipationControleur {
         return isset($res['status_code']) && $res['status_code'] === 200;
     }
 
+    // Supprime une participation
     public function supprimerLaParticipation(int $participationId) : bool {
         $url = $this->apiUrl . "?id=" . $participationId;
         $options = [
@@ -160,6 +172,7 @@ class ParticipationControleur {
         return isset($res['status_code']) && $res['status_code'] === 200;
     }
 
+    // Met à jour la performance d’un joueur 
     public function mettreAJourLaPerformance(int $participationId, string $performance): bool {
     $data = ['performance' => $performance];
     $options = [
@@ -177,6 +190,7 @@ class ParticipationControleur {
     return isset($res['status_code']) && $res['status_code'] === 200;
 }
 
+// Supprime la performance d’un joueur
 public function supprimerLaPerformance(int $participationId): bool {
     $options = [
         'http' => [
