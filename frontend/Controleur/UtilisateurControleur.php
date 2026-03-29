@@ -33,7 +33,7 @@ class UtilisateurControleur {
             session_start();
         }
 
-        $url = "https://auth.alwaysdata.net/EndpointAuth.php";
+        $url = "https://equipe.alwaysdata.net/EndpointAuth.php";
 
         $data = json_encode([
             "login" => $username,

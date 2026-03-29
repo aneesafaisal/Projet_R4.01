@@ -4,7 +4,7 @@ namespace R301\Controleur;
 
 class JoueurControleur {
     private static ?JoueurControleur $instance = null;
-    private string $apiUrl = "http://localhost/Projet_R4.01/backend/EndpointJoueur.php";
+    private string $apiUrl = "https://equipe.alwaysdata.net/EndpointJoueur.php";
     private string $token = "";
 
     private function __construct() {}

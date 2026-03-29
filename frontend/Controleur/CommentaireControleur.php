@@ -5,7 +5,7 @@ use R301\Modele\Joueur\Joueur;
 
 class CommentaireControleur {
     private static ?CommentaireControleur $instance = null;
-    private $apiUrl = "http://localhost/Projet_R4.01/backend/EndpointCommentaire.php";
+    private $apiUrl = "https://equipe.alwaysdata.net/EndpointCommentaire.php";
 
     private function __construct() {
         #$this->commentaires = CommentaireDAO::getInstance();

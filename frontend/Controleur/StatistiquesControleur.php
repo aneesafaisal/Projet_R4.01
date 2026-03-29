@@ -4,7 +4,7 @@ namespace R301\Controleur;
 
 class StatistiquesControleur {
     private static ?StatistiquesControleur $instance = null;
-    private $apiUrl = "http://localhost/Projet_R4.01/backend/EndpointStatistiques.php";
+    private $apiUrl = "https://equipe.alwaysdata.net/EndpointStatistiques.php";
 
     private function __construct() {}
 

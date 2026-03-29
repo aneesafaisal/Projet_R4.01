@@ -4,7 +4,7 @@ namespace R301\Controleur;
 
 class RencontreControleur {
     private static ?RencontreControleur $instance = null;
-    private string $apiUrl = "http://localhost/Projet_R4.01/backend/EndpointRencontre.php";
+    private string $apiUrl = "https://equipe.alwaysdata.net/EndpointRencontre.php";
     private string $token = "";
 
     private function __construct() {}

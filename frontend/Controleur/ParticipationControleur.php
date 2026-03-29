@@ -4,7 +4,7 @@ namespace R301\Controleur;
 
 class ParticipationControleur {
     private static ?ParticipationControleur $instance = null;
-    private string $apiUrl = "http://localhost/Projet_R4.01/backend/EndpointParticipation.php";
+    private string $apiUrl = "https://equipe.alwaysdata.net/EndpointParticipation.php";
     private string $token = "TON_TOKEN_ICI";
 
     private function __construct() {}
