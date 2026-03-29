@@ -40,9 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Vérification de l'authentification via token, en répondant avec un code 401 Unauthorized si le token
-if (!verifyToken()) {
+$user = verifyToken();
+if ($user === null) {
     deliver_response(401, "Token invalide ou manquant");
 }
+$role = $user['role'];
 
 // Récupération de la méthode HTTP utilisée pour la requête
 $http_method = $_SERVER['REQUEST_METHOD'];
@@ -62,6 +64,9 @@ try {
 
         // Gestion de la méthode POST pour créer une nouvelle participation, en vérifiant les données reçues et en appelant le contrôleur pour créer la participation
         case 'POST':
+            if ($role !== 'admin' && $role !== 'coach') {
+                deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour ajouter une participation");
+            }
             $data = json_decode(file_get_contents('php://input'), true);
 
             // Mise à jour de performance
@@ -92,6 +97,9 @@ try {
             break;
 
         case 'PUT':
+            if ($role !== 'admin' && $role !== 'coach') {
+                deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour modifier une participation");
+            }
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
@@ -115,6 +123,9 @@ try {
             break;
 
         case 'DELETE':
+            if ($role !== 'admin' && $role !== 'coach') {
+                deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour ajouter un joueur");
+            }
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }

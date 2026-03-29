@@ -2,7 +2,7 @@
 
 // Point d'entrée pour les opérations liées aux commentaires, gérant les requêtes HTTP GET, POST et DELETE pour lister, ajouter et supprimer des commentaires respectivement, avec vérification de l'authentification via token et gestion des erreurs
 require_once 'Psr4AutoloaderClass.php';
-require_once 'token.php'; 
+require_once 'token.php';
 
 // Importation des classes nécessaires
 use R301\Psr4AutoloaderClass;
@@ -25,9 +25,9 @@ function deliver_response(int $status_code, string $status_message, $data = null
     header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
     $response = [
-        'status_code'    => $status_code,
+        'status_code' => $status_code,
         'status_message' => $status_message,
-        'data'           => $data
+        'data' => $data
     ];
 
     echo json_encode($response);
@@ -40,9 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Vérification de l'authentification via token, en répondant avec un code 401 Unauthorized si le token
-if (!verifyToken()) {
+$user = verifyToken();
+if ($user === null) {
     deliver_response(401, "Token invalide ou manquant");
 }
+$role = $user['role'];
 
 // Récupération de la méthode HTTP utilisée pour la requête
 $http_method = $_SERVER['REQUEST_METHOD'];
@@ -56,7 +58,7 @@ try {
                 deliver_response(400, "joueur_id manquant (paramètre obligatoire pour lister les commentaires)");
             }
 
-            $joueurId = (int)$_GET['joueur_id'];
+            $joueurId = (int) $_GET['joueur_id'];
 
             $joueurControleur = JoueurControleur::getInstance();
             $joueur = $joueurControleur->getJoueurById($joueurId);
@@ -71,6 +73,9 @@ try {
 
         // Gestion de la méthode POST pour ajouter un commentaire, en vérifiant que les champs nécessaires sont présents dans le JSON de la requête et en appelant le contrôleur pour créer le commentaire
         case 'POST':
+            if ($role !== 'admin' && $role !== 'coach') {
+                deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour ajouter un commentaire");
+            }
             $data = json_decode(file_get_contents('php://input'), true);
 
             if (!$data || !is_array($data)) {
@@ -91,14 +96,17 @@ try {
                 $success ? "Commentaire créé" : "Erreur lors de la création du commentaire"
             );
             break;
-            
+
         // Gestion de la méthode DELETE pour supprimer un commentaire, en vérifiant que le paramètre id est présent et en appelant le contrôleur pour supprimer le commentaire
         case 'DELETE':
+            if ($role !== 'admin' && $role !== 'coach') {
+                deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour ajouter un commentaire");
+            }
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
 
-            $id = (int)$_GET['id']; 
+            $id = (int) $_GET['id'];
 
             $success = $controleur->supprimerCommentaire($id);
 

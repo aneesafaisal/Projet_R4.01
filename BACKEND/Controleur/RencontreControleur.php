@@ -9,19 +9,23 @@ use R301\Modele\Rencontre\Rencontre;
 use R301\Modele\Rencontre\RencontreDAO;
 use R301\Modele\Rencontre\RencontreLieu;
 use R301\Modele\Rencontre\RencontreResultat;
+use R301\Controleur\ParticipationControleur;
 
 // Contrôleur gérant les opérations liées aux rencontres (matchs)
-class RencontreControleur {
+class RencontreControleur
+{
     private static ?RencontreControleur $instance = null;
     private readonly RencontreDAO $rencontres;
 
     // Constructeur privé pour empêcher l'instanciation directe
-    private function __construct() {
+    private function __construct()
+    {
         $this->rencontres = RencontreDAO::getInstance();
     }
 
     // Retourne l'instance unique du contrôleur
-    public static function getInstance(): RencontreControleur {
+    public static function getInstance(): RencontreControleur
+    {
         if (self::$instance == null) {
             self::$instance = new RencontreControleur();
         }
@@ -34,7 +38,7 @@ class RencontreControleur {
         string $equipeAdverse,
         string $adresse,
         RencontreLieu $lieu
-    ) : bool {
+    ): bool {
 
         if ($dateHeure < date("Y-m-d H:i:s")) {
             return false;
@@ -55,7 +59,7 @@ class RencontreControleur {
     public function enregistrerResultat(
         int $rencontreId,
         string $resultat
-    ) : bool {
+    ): bool {
         $rencontreAModifier = $this->rencontres->selectRencontreById($rencontreId);
 
         if (!$rencontreAModifier->estPassee()) {
@@ -67,12 +71,14 @@ class RencontreControleur {
     }
 
     // Récupère une rencontre par son identifiant
-    public function getRenconterById(int $rencontreId) : Rencontre {
+    public function getRenconterById(int $rencontreId): Rencontre
+    {
         return $this->rencontres->selectRencontreById($rencontreId);
     }
 
     // Liste toutes les rencontres
-    public function listerToutesLesRencontres() : array {
+    public function listerToutesLesRencontres(): array
+    {
         return $this->rencontres->selectAllRencontres();
     }
 
@@ -83,7 +89,7 @@ class RencontreControleur {
         string $equipeAdverse,
         string $adresse,
         RencontreLieu $lieu
-    ) : bool {
+    ): bool {
 
         $rencontreAModifier = $this->rencontres->selectRencontreById($rencontreId);
 
@@ -104,13 +110,23 @@ class RencontreControleur {
     }
 
     // Supprime une rencontre (uniquement si aucun résultat n’est enregistré)
-    public function supprimerRencontre(int $rencontreId) : bool {
+    // Supprime une rencontre (uniquement si aucun résultat n'est enregistré)
+    public function supprimerRencontre(int $rencontreId): bool
+    {
         $rencontreASupprimer = $this->rencontres->selectRencontreById($rencontreId);
 
-        if($rencontreASupprimer->getResultat() != null) {
+        if ($rencontreASupprimer->getResultat() != null) {
             return false;
-        } else {
-            return $this->rencontres->supprimerRencontre($rencontreId);
         }
+
+        // Supprimer toutes les participations liées à cette rencontre
+        $feuilleDeMatch = ParticipationControleur::getInstance()->getFeuilleDeMatch($rencontreId);
+        foreach ($feuilleDeMatch->getParticipants() as $participant) {
+            ParticipationControleur::getInstance()->supprimerLaParticipation(
+                $participant->getParticipationId()
+            );
+        }
+
+        return $this->rencontres->supprimerRencontre($rencontreId);
     }
 }

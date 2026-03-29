@@ -71,5 +71,5 @@ function verifyToken() {
         return null;
     }
 
-    return $response['data']; // doit contenir 'username' et 'role'
+    return $response['data'];
 }

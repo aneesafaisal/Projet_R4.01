@@ -2,11 +2,11 @@
 
 // Point d'entrée pour les requêtes liées aux statistiques de l'équipe et des joueurs, gérant les méthodes GET pour récupérer les statistiques et vérifiant le token d'authentification
 require_once 'Psr4AutoloaderClass.php';
-require_once 'token.php'; 
+require_once 'token.php';
 
 // Importation des classes nécessaires du namespace R301
 use R301\Psr4AutoloaderClass;
-use R301\Controleur\StatistiquesControleur; 
+use R301\Controleur\StatistiquesControleur;
 
 // Enregistrement de l'autoloader pour charger automatiquement les classes du namespace R301
 $loader = new Psr4AutoloaderClass();
@@ -26,9 +26,9 @@ function deliver_response(int $status_code, string $status_message, $data = null
     header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
     $response = [
-        'status_code'    => $status_code,
+        'status_code' => $status_code,
         'status_message' => $status_message,
-        'data'           => $data
+        'data' => $data
     ];
 
     echo json_encode($response);
@@ -41,9 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Vérification de l'authentification via token, en répondant avec un code 401 Unauthorized si le token
-if (!verifyToken()) {
+$user = verifyToken();
+if ($user === null) {
     deliver_response(401, "Token invalide ou manquant");
 }
+$role = $user['role'];
 
 // Récupération de la méthode HTTP utilisée pour la requête
 $http_method = $_SERVER['REQUEST_METHOD'];
@@ -58,7 +60,7 @@ try {
             $statistiquesJoueurs = $controleur->getStatistiquesJoueurs();
 
             $data = [
-                'statistiques_equipe'  => $statistiquesEquipe,
+                'statistiques_equipe' => $statistiquesEquipe,
                 'statistiques_joueurs' => $statistiquesJoueurs
             ];
             deliver_response(200, "La requête a réussi", $data);

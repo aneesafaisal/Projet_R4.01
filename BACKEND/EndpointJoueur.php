@@ -41,9 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Vérification de l'authentification via token, en répondant avec un code 401 Unauthorized si le token
-if (!verifyToken()) {
+$user = verifyToken();
+if ($user === null) {
     deliver_response(401, "Token invalide ou manquant");
 }
+$role = $user['role'];
 
 // Récupération de la méthode HTTP utilisée pour la requête
 $http_method = $_SERVER['REQUEST_METHOD'];
@@ -69,6 +71,9 @@ try {
 
         // Gestion de la méthode POST pour créer un nouveau joueur, en vérifiant que les données JSON sont valides et que tous les champs requis sont présents, puis en appelant le contrôleur pour ajouter le joueur
         case 'POST':
+            if ($role !== 'admin' && $role !== 'coach') {
+                deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour ajouter un joueur");
+            }
             $data = json_decode(file_get_contents('php://input'), true);
 
             if (!$data || !is_array($data)) {
@@ -95,6 +100,9 @@ try {
 
         // Gestion de la méthode PUT pour modifier un joueur existant, en vérifiant que l'id du joueur à modifier est présent, que les données JSON sont valides et que tous les champs requis sont présents, puis en appelant le contrôleur pour modifier le joueur    
         case 'PUT':
+            if ($role !== 'admin' && $role !== 'coach') {
+                deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour modifier un joueur");
+            }
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
@@ -132,6 +140,9 @@ try {
             
         // Gestion de la méthode DELETE pour supprimer un joueur, en vérifiant que l'id du joueur à supprimer est présent, puis en appelant le contrôleur pour supprimer le joueur et en répondant avec un code 200 OK si la suppression a réussi ou 404 Not Found si le joueur n'a pas été trouvé    
         case 'DELETE':
+            if ($role !== 'admin' && $role !== 'coach') {
+                deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour supprimer un joueur");
+            }
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }

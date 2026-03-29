@@ -34,9 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Vérification de l'authentification via token, en répondant avec un code 401 Unauthorized si le token
-if (!verifyToken()) {
+$user = verifyToken();
+if ($user === null) {
     deliver_response(401, "Token invalide ou manquant");
 }
+$role = $user['role'];
 
 // Récupération de la méthode HTTP utilisée pour la requête
 $http_method = $_SERVER['REQUEST_METHOD'];
@@ -48,7 +50,7 @@ try {
         // Gestion de la méthode GET pour récupérer les rencontres, en vérifiant si un paramètre id est présent pour récupérer une rencontre spécifique ou toutes les rencontres sinon
         case 'GET':
             if (isset($_GET['id'])) {
-                $id = (int)$_GET['id'];
+                $id = (int) $_GET['id'];
                 $rencontre = $controleur->getRenconterById($id);
                 if ($rencontre === null) {
                     deliver_response(404, "Rencontre non trouvée");
@@ -60,6 +62,9 @@ try {
 
         // Gestion de la méthode POST pour créer une rencontre, en vérifiant que les champs nécessaires sont présents dans le JSON de la requête, puis en appelant le contrôleur pour créer la rencontre et en répondant avec un code 201 Created si la création a réussi ou 400 Bad Request si la création a échoué (JSON invalide ou champs manquants)    
         case 'POST':
+            if ($role !== 'admin' && $role !== 'coach') {
+                deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour ajouter une rencontre");
+            }
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data || !isset($data['dateHeure'], $data['equipeAdverse'], $data['adresse'], $data['lieu'])) {
                 deliver_response(400, "JSON invalide ou champs manquants");
@@ -79,10 +84,13 @@ try {
 
         // Gestion de la méthode PUT pour modifier une rencontre, en vérifiant que l'id de la rencontre à modifier est présent, que les champs nécessaires sont présents dans le JSON de la requête, puis en appelant le contrôleur pour modifier la rencontre et en répondant avec un code 200 OK si la modification a réussi ou 400 Bad Request si la modification a échoué (JSON invalide, champs manquants ou rencontre non trouvée)    
         case 'PUT':
+            if ($role !== 'admin' && $role !== 'coach') {
+                deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour modifier une rencontre");
+            }
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
-            $id = (int)$_GET['id'];
+            $id = (int) $_GET['id'];
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data || !isset($data['dateHeure'], $data['equipeAdverse'], $data['adresse'], $data['lieu'])) {
                 deliver_response(400, "JSON invalide ou champs manquants");
@@ -104,13 +112,16 @@ try {
                 deliver_response(400, "Erreur lors de la mise à jour");
             }
             break;
-        
+
         // Gestion de la méthode PATCH pour mettre à jour le résultat d'une rencontre, en vérifiant que l'id de la rencontre à modifier est présent, que le champ resultat est présent dans le JSON de la requête, puis en appelant le contrôleur pour enregistrer le résultat et en répondant avec un code 200 OK si l'enregistrement a réussi ou 400 Bad Request si l'enregistrement a échoué (rencontre non encore passée ou résultat invalide)    
         case 'PATCH':
+            if ($role !== 'admin' && $role !== 'coach') {
+                deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour modifier une rencontre");
+            }
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
-            $id = (int)$_GET['id'];
+            $id = (int) $_GET['id'];
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data || !isset($data['resultat'])) {
                 deliver_response(400, "Champ 'resultat' manquant");
@@ -126,13 +137,16 @@ try {
                 deliver_response(400, "Erreur lors de l'enregistrement du résultat");
             }
             break;
-            
+
         // Gestion de la méthode DELETE pour supprimer une rencontre, en vérifiant que l'id de la rencontre à supprimer est présent, puis en appelant le contrôleur pour supprimer la rencontre et en répondant avec un code 200 OK si la suppression a réussi ou 404 Not Found si la rencontre n'a pas été trouvée    
         case 'DELETE':
+            if ($role !== 'admin' && $role !== 'coach') {
+                deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour supprimer une rencontre");
+            }
             if (!isset($_GET['id'])) {
                 deliver_response(400, "ID manquante");
             }
-            $id = (int)$_GET['id'];
+            $id = (int) $_GET['id'];
             $rencontre = $controleur->getRenconterById($id);
             if ($rencontre === null) {
                 deliver_response(404, "Rencontre non trouvée");

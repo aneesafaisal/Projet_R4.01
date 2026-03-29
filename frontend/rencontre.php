@@ -24,9 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                 if (!$controleur->enregistrerResultat($_POST['rencontreId'], $_POST['resultat'])) {
                     error_log("Erreur lors de la mise à jour du resultat");
                 }
-                header('Location: ' . BASE_URL . '/rencontre');
-                die();
             }
+            header('Location: ' . BASE_URL . '/rencontre');
+            die();
         case "supprimer":
             if (!$controleur->supprimerRencontre($_POST['rencontreId'])) {
                 error_log("Erreur lors de la suppression de la rencontre");
@@ -52,43 +52,45 @@ $rencontres = $controleur->listerToutesLesRencontres();
         </tr>
         <?php foreach ($rencontres as $rencontre):
 
-            $selectResultat = new SelectResultat(
-                null,
-                $rencontre['resultat'] ?? null
-            );
-
+            $resultatActuel = isset($rencontre['resultat']) ? $rencontre['resultat'] : null;
+            $selectResultat = new SelectResultat(null, $resultatActuel);
             $dateMatch = new DateTime($rencontre['dateEtHeure']);
             $estPassee = $dateMatch < new DateTime();
-            $resultatActuel = $rencontre['resultat'] ?? null;
         ?>
-        <form action="<?php echo BASE_URL; ?>/rencontre" method="post">
-            <tr>
-                <input type="hidden" name="rencontreId" value="<?php echo htmlspecialchars($rencontre['rencontreId']); ?>" />
-                <td><?php echo $dateMatch->format('d/m/Y H:i') ?></td>
-                <td><?php echo htmlspecialchars($rencontre['equipeAdverse']) ?></td>
-                <td><?php echo htmlspecialchars($rencontre['adresse']) ?></td>
-                <td><?php echo htmlspecialchars($rencontre['lieu']) ?></td>
+        <tr>
+            <td><?php echo $dateMatch->format('d/m/Y H:i') ?></td>
+            <td><?php echo htmlspecialchars($rencontre['equipeAdverse']) ?></td>
+            <td><?php echo htmlspecialchars($rencontre['adresse']) ?></td>
+            <td><?php echo htmlspecialchars($rencontre['lieu']) ?></td>
 
-                <?php if ($estPassee && $resultatActuel === null): ?>
-                    <td><?php $selectResultat->toHTML(); ?></td>
-                <?php else: ?>
-                    <td><?php echo htmlspecialchars($resultatActuel ?? '') ?></td>
-                <?php endif; ?>
-
-                <td class="actions">
-                    <?php if (!$estPassee): ?>
-                    <button name="action" value="ouvrirFeuilleDeMatch" class="info">Feuilles de match</button>
-                    <button name="action" value="modifier" class="update">Modifier</button>
-                    <button name="action" value="supprimer" class="delete">Supprimer</button>
-                    <?php else: ?>
-                    <button name="action" value="ouvrirEvaluations" class="info">Évaluations</button>
-                    <?php if ($estPassee && $resultatActuel === null): ?>
-                    <button class="create" name="action" value="enregistrerResultat">Enregistrer résultat</button>
-                    <?php endif; ?>
-                    <?php endif; ?>
+            <?php if ($estPassee && $resultatActuel === null): ?>
+                <td>
+                    <form action="<?php echo BASE_URL; ?>/rencontre" method="post">
+                        <input type="hidden" name="rencontreId" value="<?php echo htmlspecialchars($rencontre['rencontreId']); ?>" />
+                        <?php echo $selectResultat->toHTML(); ?>
+                        <button class="create" name="action" value="enregistrerResultat">Enregistrer résultat</button>
+                    </form>
                 </td>
-            </tr>
-        </form>
+            <?php else: ?>
+                <td><?php echo htmlspecialchars($resultatActuel !== null ? $resultatActuel : '') ?></td>
+            <?php endif; ?>
+
+            <td class="actions">
+                <?php if (!$estPassee): ?>
+                    <form action="<?php echo BASE_URL; ?>/rencontre" method="post" style="display:inline">
+                        <input type="hidden" name="rencontreId" value="<?php echo htmlspecialchars($rencontre['rencontreId']); ?>" />
+                        <button name="action" value="ouvrirFeuilleDeMatch" class="info">Feuilles de match</button>
+                        <button name="action" value="modifier" class="update">Modifier</button>
+                        <button name="action" value="supprimer" class="delete">Supprimer</button>
+                    </form>
+                <?php else: ?>
+                    <form action="<?php echo BASE_URL; ?>/rencontre" method="post" style="display:inline">
+                        <input type="hidden" name="rencontreId" value="<?php echo htmlspecialchars($rencontre['rencontreId']); ?>" />
+                        <button name="action" value="ouvrirEvaluations" class="info">Évaluations</button>
+                    </form>
+                <?php endif; ?>
+            </td>
+        </tr>
         <?php endforeach; ?>
     </table>
 </div>
