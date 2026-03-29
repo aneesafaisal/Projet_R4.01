@@ -5,9 +5,7 @@ namespace R301\Controleur;
 class JoueurControleur {
     private static ?JoueurControleur $instance = null;
     private string $apiUrl = "http://localhost/Projet_R4.01/backend/EndpointJoueur.php";
-
-    // Remplace par ta constante ou ta session token
-    private string $token = "TON_TOKEN_ICI";
+    private string $token = "";
 
     private function __construct() {}
 
@@ -81,6 +79,22 @@ class JoueurControleur {
         return $response['data'];
     }
 
+    public function listerLesJoueursSelectionnablesPourUnMatch(int $rencontreId): array {
+        $tous = $this->listerTousLesJoueurs();
+        $selectionnables = [];
+        $participationCtrl = ParticipationControleur::getInstance();
+
+        foreach ($tous as $joueur) {
+            if (($joueur['statut'] ?? '') === 'ACTIF' &&
+                !$participationCtrl->lejoueurEstDejaSurLaFeuilleDeMatch($rencontreId, $joueur['joueurId'])) {
+                
+                $selectionnables[] = $joueur;
+            }
+        }
+
+        return $selectionnables;
+    }
+
     public function ajouterJoueur(
         string $nom,
         string $prenom,
@@ -136,7 +150,7 @@ class JoueurControleur {
         return $response !== null && $response['status_code'] === 200;
     }
 
-    // Le backend n'a pas d'endpoint de filtre : on filtre côté frontend
+    // on filtre côté frontend
     public function rechercherLesJoueurs(string $recherche, string $statut): array {
         $tous = $this->listerTousLesJoueurs();
         $resultats = [];
