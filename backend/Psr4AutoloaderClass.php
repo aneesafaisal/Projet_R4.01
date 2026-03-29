@@ -50,7 +50,6 @@ namespace R301;
 
 // Implémentation d'un autoloader PSR-4 pour charger automatiquement les classes en fonction de leur namespace et de leur emplacement dans le système de fichiers, permettant ainsi une organisation modulaire du code et une gestion efficace des dépendances
 class Psr4AutoloaderClass
-
 {
     /**
      * An associative array where the key is a namespace prefix and the value

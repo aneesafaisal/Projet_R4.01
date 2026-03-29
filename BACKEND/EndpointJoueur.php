@@ -2,7 +2,7 @@
 
 // Point d'entrée pour les requêtes liées aux joueurs, gérant les méthodes HTTP GET, POST, PUT et DELETE pour récupérer, créer, modifier et supprimer des joueurs, avec vérification du token d'authentification et gestion des réponses JSON
 require_once 'Psr4AutoloaderClass.php';
-require_once 'outils.php'; 
+require_once 'outils.php';
 
 // Importation des classes nécessaires
 use R301\Psr4AutoloaderClass;
@@ -34,7 +34,7 @@ try {
         // Gestion de la méthode GET pour récupérer les joueurs, en vérifiant si un paramètre id est présent pour récupérer un joueur spécifique ou tous les joueurs sinon
         case 'GET':
             if (isset($_GET['id'])) {
-                $id = (int)$_GET['id']; 
+                $id = (int) $_GET['id'];
                 $joueur = $controleur->getJoueurById($id);
                 if ($joueur === null) {
                     deliver_response(404, "Joueur non trouvé");
@@ -68,8 +68,13 @@ try {
             }
 
             $success = $controleur->ajouterJoueur(
-                $data['nom'], $data['prenom'], $data['numeroDeLicence'], $date,
-                (int)$data['tailleEnCm'], (int)$data['poidsEnKg'], $data['statut']
+                $data['nom'],
+                $data['prenom'],
+                $data['numeroDeLicence'],
+                $date,
+                (int) $data['tailleEnCm'],
+                (int) $data['poidsEnKg'],
+                $data['statut']
             );
 
             deliver_response($success ? 201 : 400, $success ? "Joueur créé" : "Erreur lors de la création");
@@ -84,7 +89,7 @@ try {
                 deliver_response(400, "ID manquante");
             }
 
-            $id = (int)$_GET['id']; 
+            $id = (int) $_GET['id'];
 
             $data = json_decode(file_get_contents('php://input'), true);
 
@@ -108,13 +113,19 @@ try {
             }
 
             $success = $controleur->modifierJoueur(
-                $id, $data['nom'], $data['prenom'], $data['numeroDeLicence'],
-                $date, (int)$data['tailleEnCm'], (int)$data['poidsEnKg'], $data['statut']
+                $id,
+                $data['nom'],
+                $data['prenom'],
+                $data['numeroDeLicence'],
+                $date,
+                (int) $data['tailleEnCm'],
+                (int) $data['poidsEnKg'],
+                $data['statut']
             );
 
             deliver_response($success ? 200 : 400, $success ? "Joueur mis à jour" : "Erreur lors de la mise à jour");
             break;
-            
+
         // Gestion de la méthode DELETE pour supprimer un joueur, en vérifiant que l'id du joueur à supprimer est présent, puis en appelant le contrôleur pour supprimer le joueur et en répondant avec un code 200 OK si la suppression a réussi ou 404 Not Found si le joueur n'a pas été trouvé    
         case 'DELETE':
             if ($role !== 'admin' && $role !== 'coach') {
@@ -124,7 +135,7 @@ try {
                 deliver_response(400, "ID manquante");
             }
 
-            $id = (int)$_GET['id']; 
+            $id = (int) $_GET['id'];
 
             $success = $controleur->supprimerJoueur($id);
 

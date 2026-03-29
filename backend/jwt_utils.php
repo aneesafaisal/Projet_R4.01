@@ -1,21 +1,88 @@
 <?php
 
-// Endpoint pour gérer les requêtes liées aux statistiques de l'équipe et des joueurs, en utilisant le contrôleur des statistiques pour récupérer les données et en répondant avec des codes de statut HTTP appropriés
-function base64url_encode($data) {
+// Génère un token JWT signé à partir des en-têtes, du payload et du secret
+function generate_jwt($headers, $payload, $secret)
+{
+    $headers_encoded = base64url_encode(json_encode($headers));
+
+    $payload_encoded = base64url_encode(json_encode($payload));
+
+    $signature = hash_hmac('SHA256', "$headers_encoded.$payload_encoded", $secret, true);
+    $signature_encoded = base64url_encode($signature);
+
+    $jwt = "$headers_encoded.$payload_encoded.$signature_encoded";
+
+    return $jwt;
+}
+
+// Vérifie la validité d'un token JWT en contrôlant sa structure, sa signature et son expiration
+function is_jwt_valid($jwt, $secret)
+{
+
+    if (!$jwt || !$secret) {
+        return false;
+    }
+
+    $tokenParts = explode('.', $jwt);
+
+    if (count($tokenParts) !== 3) {
+        return false;
+    }
+
+    $header = base64_decode($tokenParts[0]);
+    $payload = base64_decode($tokenParts[1]);
+    $signature_provided = $tokenParts[2];
+
+    $decoded = json_decode($payload);
+
+    if (!$decoded || !isset($decoded->exp)) {
+        return false;
+    }
+
+    $is_token_expired = ($decoded->exp - time()) < 0;
+
+    $base64_url_header = base64url_encode($header);
+    $base64_url_payload = base64url_encode($payload);
+
+    $signature = hash_hmac(
+        'SHA256',
+        $base64_url_header . "." . $base64_url_payload,
+        $secret,
+        true
+    );
+
+    $base64_url_signature = base64url_encode($signature);
+
+    $is_signature_valid = ($base64_url_signature === $signature_provided);
+
+    return !$is_token_expired && $is_signature_valid;
+}
+
+// Décode une chaîne encodée en base64url en base64 standard
+function base64url_decode($data)
+{
+    return base64_decode(strtr($data, '-_', '+/'));
+}
+// Encode une chaîne en base64url (variante URL-safe du base64, sans padding)
+function base64url_encode($data)
+{
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }
 
-// Fonction pour récupérer le token d'authentification à partir de l'en-tête Authorization de la requête HTTP, en prenant en compte les différentes façons dont les en-têtes peuvent être envoyés par les clients et les serveurs
-function get_authorization_header(){
+// Récupère l'en-tête Authorization de la requête HTTP en gérant les différents serveurs (Apache, Nginx, FastCGI)
+function get_authorization_header()
+{
     $headers = null;
 
     if (isset($_SERVER['Authorization'])) {
         $headers = trim($_SERVER["Authorization"]);
-    } else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { 
+    } else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
         $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
     } else if (function_exists('apache_request_headers')) {
         $requestHeaders = apache_request_headers();
+        // Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
         $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
+        //print_r($requestHeaders);
         if (isset($requestHeaders['Authorization'])) {
             $headers = trim($requestHeaders['Authorization']);
         }
@@ -24,13 +91,16 @@ function get_authorization_header(){
     return $headers;
 }
 
-// Fonction pour extraire le token Bearer depuis l'en-tête Authorization, en vérifiant que le format de l'en-tête est correct et en gérant le cas où le token serait explicitement défini comme "null"
-function get_bearer_token() {
+// Extrait le token Bearer depuis l'en-tête Authorization
+// Retourne null si aucun token n'est trouvé ou si le token vaut explicitement "null"
+function get_bearer_token()
+{
     $headers = get_authorization_header();
 
+    // HEADER: Get the access token from the header
     if (!empty($headers)) {
         if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
-            if($matches[1]=='null') 
+            if ($matches[1] == 'null') //$matches[1] est de type string et peut contenir 'null'
                 return null;
             else
                 return $matches[1];
@@ -39,37 +109,4 @@ function get_bearer_token() {
     return null;
 }
 
-// Fonction pour vérifier la validité du token d'authentification en envoyant une requête à un service d'authentification externe, en gérant le cas où l'application est exécutée en local pour permettre un accès sans token, et en vérifiant que le token n'est pas expiré et que sa signature est valide
-function verifyToken() {
-    $isLocal = in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1'])
-               || $_SERVER['HTTP_HOST'] === 'localhost';
-
-    if ($isLocal) {
-        // En local, on retourne un utilisateur fictif avec un rôle admin
-        return [
-            'username' => 'local_admin',
-            'role'     => 'ADMIN'
-        ];
-    }
-
-    $url = "https://auth.alwaysdata.net/EndpointAuth.php";
-    $ch = curl_init();
-
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . get_bearer_token()
-    ]);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    $response = curl_exec($ch);
-    $response = json_decode($response, true);
-    curl_close($ch);
-
-    if (!$response || $response['status_code'] != 200) {
-        return null;
-    }
-
-    return $response['data'];
-}
+?>

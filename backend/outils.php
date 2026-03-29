@@ -2,7 +2,10 @@
 
 require_once 'jwt_utils.php';
 
-function convertir_en_json($data) {
+// Convertit récursivement un objet ou tableau en un format compatible JSON
+// Gère les cas spéciaux : DateTime, énumérations (UnitEnum), objets et tableaux imbriqués
+function convertir_en_json($data)
+{
     if ($data instanceof DateTime) {
         return $data->format('Y-m-d');
     }
@@ -25,7 +28,9 @@ function convertir_en_json($data) {
     return $data;
 }
 
-function deliver_response(int $status_code, string $status_message, $data = null): void {
+// Envoie une réponse HTTP au client au format JSON avec le code de statut, le message et les données
+function deliver_response(int $status_code, string $status_message, $data = null): void
+{
     http_response_code($status_code);
     header("Content-Type: application/json; charset=utf-8");
     header("Access-Control-Allow-Origin: *");
@@ -35,14 +40,17 @@ function deliver_response(int $status_code, string $status_message, $data = null
     $data = convertir_en_json($data);
 
     echo json_encode([
-        'status_code'    => $status_code,
+        'status_code' => $status_code,
         'status_message' => $status_message,
-        'data'           => $data
+        'data' => $data
     ]);
     exit;
 }
 
-function getUser() {
+// Récupère et valide l'utilisateur authentifié à partir du token JWT présent dans l'en-tête Authorization
+// Retourne le payload décodé du token (contenant login et role) ou interrompt la requête avec une erreur
+function getUser()
+{
     $token = get_bearer_token();
     $secret = getenv('JWT_SECRET');
 
