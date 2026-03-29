@@ -2,7 +2,7 @@
 
 /// Endpoint de gestion des participations des joueurs aux rencontres, permettant de créer, lire, mettre à jour et supprimer les participations, ainsi que de récupérer la feuille de match d'une rencontre spécifique
 require_once 'Psr4AutoloaderClass.php';
-require_once 'token.php';
+require_once 'outils.php';
 
 // Import des classes nécessaires pour gérer les participations et les feuilles de match
 use R301\Psr4AutoloaderClass;
@@ -17,34 +17,13 @@ $loader->addNamespace('R301', __DIR__);
 // Instanciation du contrôleur de participation pour gérer les requêtes liées aux participations des joueurs aux rencontres
 $controleur = ParticipationControleur::getInstance();
 
-// Fonction pour délivrer une réponse HTTP au client, en définissant le code de statut, le message et les données, et en encodant la réponse en JSON
-function deliver_response(int $status_code, string $status_message, $data = null): void
-{
-    http_response_code($status_code);
-    header("Content-Type: application/json; charset=utf-8");
-    header("Access-Control-Allow-Origin: *");
-    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-    header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-    echo json_encode([
-        'status_code' => $status_code,
-        'status_message' => $status_message,
-        'data' => $data
-    ]);
-    exit;
-}
-
 // Gestion de la méthode HTTP OPTIONS pour les requêtes CORS préflight, en répondant avec un code 204 No Content
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     deliver_response(204, "Méthode OPTIONS autorisée");
 }
 
-// Vérification de l'authentification via token, en répondant avec un code 401 Unauthorized si le token
-$user = verifyToken();
-if ($user === null) {
-    deliver_response(401, "Token invalide ou manquant");
-}
-$role = $user['role'];
+$user = getUser();
+$role = $user->role;
 
 // Récupération de la méthode HTTP utilisée pour la requête
 $http_method = $_SERVER['REQUEST_METHOD'];

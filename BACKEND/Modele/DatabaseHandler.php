@@ -9,28 +9,17 @@ use PDO;
 
 // Classe gérant la connexion à la base de données, implémentant le pattern singleton pour garantir une seule instance de connexion à la base de données
 class DatabaseHandler {
-
-    
     private static ?DatabaseHandler $instance = null;
     private readonly PDO $linkpdo;
-    private readonly string $server;
-    private readonly string $db;
-    private readonly string $login;
-    private readonly string $mdp;
 
     // Constructeur privé pour empêcher l'instanciation directe de la classe DatabaseHandler, initialisant les paramètres de connexion à la base de données et établissant la connexion PDO
     private function __construct(){
         try{
-            $this->server = "localhost";
-            $this->db = "r401";
-            $this->login = "root";
-            $this->mdp = "";
-            $this->linkpdo=new PDO("mysql:host=".$this->server.";dbname=".$this->db,$this->login,$this->mdp);
-            /*$host = getenv('DB_HOST');
+            $host = getenv('DB_HOST');
             $dbname = getenv('DB_NAME');
             $username = getenv('DB_USER');
             $password = getenv('DB_PASSWORD');
-            $this->linkpdo=new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);*/
+            $this->linkpdo=new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
         }catch(Exception $e){
             die("Erreur : ".$e->getMessage());
         }

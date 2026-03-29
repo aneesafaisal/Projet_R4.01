@@ -2,7 +2,7 @@
 
 // Point d'entrée pour les opérations liées aux commentaires, gérant les requêtes HTTP GET, POST et DELETE pour lister, ajouter et supprimer des commentaires respectivement, avec vérification de l'authentification via token et gestion des erreurs
 require_once 'Psr4AutoloaderClass.php';
-require_once 'token.php';
+require_once 'outils.php';
 
 // Importation des classes nécessaires
 use R301\Psr4AutoloaderClass;
@@ -15,36 +15,13 @@ $loader->register();
 $loader->addNamespace('R301', __DIR__);
 $controleur = CommentaireControleur::getInstance();
 
-// Fonction pour délivrer une réponse HTTP au client, en définissant le code de statut, le message et les données, et en encodant la réponse en JSON
-function deliver_response(int $status_code, string $status_message, $data = null): void
-{
-    http_response_code($status_code);
-    header("Content-Type: application/json; charset=utf-8");
-    header("Access-Control-Allow-Origin: *");
-    header("Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS");
-    header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-    $response = [
-        'status_code' => $status_code,
-        'status_message' => $status_message,
-        'data' => $data
-    ];
-
-    echo json_encode($response);
-    exit;
-}
-
 // Gestion de la méthode HTTP OPTIONS pour les requêtes CORS préflight, en répondant avec un code 204 No Content
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     deliver_response(204, "Méthode OPTIONS autorisée");
 }
 
-// Vérification de l'authentification via token, en répondant avec un code 401 Unauthorized si le token
-$user = verifyToken();
-if ($user === null) {
-    deliver_response(401, "Token invalide ou manquant");
-}
-$role = $user['role'];
+$user = getUser();
+$role = $user->role;
 
 // Récupération de la méthode HTTP utilisée pour la requête
 $http_method = $_SERVER['REQUEST_METHOD'];
