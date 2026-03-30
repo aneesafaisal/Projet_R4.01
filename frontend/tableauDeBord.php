@@ -10,32 +10,33 @@ $statistiquesJoueurs = $controleur->getStatistiquesJoueurs();
 
 <div class="TripleGrid">
     <div>
-        <h1><?php echo $statistiquesEquipe->nbVictoires; ?></h1>
+        <h1><?= $statistiquesEquipe['nbVictoires'] ?? 0 ?></h1>
         <p> matchs gagnés</p>
     </div>
     <div>
-        <h1><?php echo $statistiquesEquipe->nbNuls; ?></h1>
+        <h1><?= $statistiquesEquipe['nbNuls'] ?? 0 ?></h1>
         <p> matchs nuls</p>
     </div>
     <div>
-        <h1><?php echo $statistiquesEquipe->nbDefaites; ?></h1>
+        <h1><?= $statistiquesEquipe['nbDefaites'] ?? 0 ?></h1>
         <p> matchs perdus</p>
     </div>
     <div>
-        <h1><?php echo $statistiquesEquipe->pourcentageDeVictoires; ?>%</h1>
+        <h1><?= $statistiquesEquipe['pourcentageDeVictoires'] ?? 0 ?>%</h1>
         <p> de matchs gagnés</p>
     </div>
     <div>
-        <h1><?php echo $statistiquesEquipe->pourcentageDeNuls; ?>%</h1>
+        <h1><?= $statistiquesEquipe['pourcentageDeNuls'] ?? 0 ?>%</h1>
         <p> de matchs nuls</p>
     </div>
     <div>
-        <h1><?php echo $statistiquesEquipe->pourcentageDeDefaites; ?>%</h1>
+        <h1><?= $statistiquesEquipe['pourcentageDeDefaites'] ?? 0 ?>%</h1>
         <p> de matchs perdus</p>
     </div>
 </div>
+
 <div class="overflow">
-    <table >
+    <table>
         <tr>
             <th style="width:15%;">Joueur</th>
             <th style="width:7%;">Statut</th>
@@ -48,14 +49,14 @@ $statistiquesJoueurs = $controleur->getStatistiquesJoueurs();
         </tr>
         <?php foreach ($statistiquesJoueurs as $stat): ?>
         <tr>
-            <td><?php echo $stat->joueur->nom . ' ' . $stat->joueur->prenom; ?></td>
-            <td><?php echo $stat->joueur->statut; ?></td>
-            <td><?php echo $stat->posteLePlusPerformant; ?></td>
-            <td><?php echo $stat->nbRencontresConsecutivesADate; ?></td>
-            <td><?php echo $stat->nbTitularisations; ?></td>
-            <td><?php echo $stat->nbRemplacant; ?></td>
-            <td><?php echo $stat->moyenneDesEvaluations; ?></td>
-            <td><?php echo $stat->pourcentageDeMatchsGagnes; ?>%</td>
+            <td><?= htmlspecialchars($stat['joueur']['nom'] ?? '') . ' ' . htmlspecialchars($stat['joueur']['prenom'] ?? '') ?></td>
+            <td><?= htmlspecialchars($stat['joueur']['statut'] ?? '') ?></td>
+            <td><?= htmlspecialchars($stat['posteLePlusPerformant'] ?? '') ?></td>
+            <td><?= $stat['nbRencontresConsecutivesADate'] ?? 0 ?></td>
+            <td><?= $stat['nbTitularisations'] ?? 0 ?></td>
+            <td><?= $stat['nbRemplacant'] ?? 0 ?></td>
+            <td><?= $stat['moyenneDesEvaluations'] ?? 0 ?></td>
+            <td><?= $stat['pourcentageDeMatchsGagnes'] ?? 0 ?>%</td>
         </tr>
         <?php endforeach; ?>
     </table>

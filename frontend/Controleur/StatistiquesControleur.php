@@ -7,9 +7,14 @@ namespace R301\Controleur;
 class StatistiquesControleur {
     private static ?StatistiquesControleur $instance = null;
     private $apiUrl = "https://equipe.alwaysdata.net/EndpointStatistiques.php";
-
-    // Constructeur vide car on n'utilise plus les models
-    private function __construct() {}
+    private string $token;
+    
+    private function __construct() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $this->token = $_SESSION['token'] ?? '';
+    }
 
     // Retourne l'instance unique du contrôleu
     public static function getInstance(): StatistiquesControleur {

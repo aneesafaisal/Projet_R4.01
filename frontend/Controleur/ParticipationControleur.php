@@ -7,10 +7,14 @@ namespace R301\Controleur;
 class ParticipationControleur {
     private static ?ParticipationControleur $instance = null;
     private string $apiUrl = "https://equipe.alwaysdata.net/EndpointParticipation.php";
-    private string $token = "";
-
-    // Constructeur vide car on n'utilise plus les models
-    private function __construct() {}
+    private string $token;
+    
+    private function __construct() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $this->token = $_SESSION['token'] ?? '';
+    }
 
     // Retourne l’instance unique
     public static function getInstance(): ParticipationControleur {
