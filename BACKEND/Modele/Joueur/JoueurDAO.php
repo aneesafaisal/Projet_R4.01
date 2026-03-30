@@ -36,7 +36,7 @@ class JoueurDAO {
             new DateTime($dbLine['date_naissance']),
             $dbLine['taille'],
             $dbLine['poids'],
-            JoueurStatut::fromName($dbLine['statut']),
+            JoueurStatut::fromName($dbLine['statut'])
         );
     }
 

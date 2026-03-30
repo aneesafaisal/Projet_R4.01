@@ -9,6 +9,8 @@ if (isset($_GET['recherche']) || isset($_GET['statut'])) {
 } else {
     $joueurs = $controleur->listerTousLesJoueurs();
 }
+echo "hello";
+var_dump($data);
 ?>
 
 <h1>Joueurs</h1>

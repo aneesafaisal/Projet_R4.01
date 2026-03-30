@@ -9,12 +9,12 @@ use R301\Modele\Rencontre\Rencontre;
 
 // Classe représentant la participation d'un joueur à une rencontre, avec des informations sur son rôle (titulaire ou remplaçant), sa performance et son poste
 class Participation implements \JsonSerializable {
-    private int $participationId;
-    private Joueur $participant;
-    private readonly Rencontre $rencontre;
-    private TitulaireOuRemplacant $titulaireOuRemplacant;
-    private ?Performance $performance;
-    private Poste $poste;
+    public int $participationId;
+    public Joueur $participant;
+    public readonly Rencontre $rencontre;
+    public TitulaireOuRemplacant $titulaireOuRemplacant;
+    public ?Performance $performance;
+    public Poste $poste;
 
     // Constructeur de la classe Participation, prenant en paramètre les informations nécessaires pour créer une participation
     public function __construct(

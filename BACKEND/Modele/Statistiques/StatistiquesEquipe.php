@@ -8,7 +8,7 @@ use R301\Modele\Rencontre\RencontreResultat;
 
 // Classe représentant les statistiques d'une équipe, avec des méthodes pour calculer le nombre de victoires, de nuls, de défaites et les pourcentages correspondants
 class StatistiquesEquipe implements \JsonSerializable {
-    private readonly array $rencontres;
+    public readonly array $rencontres;
 
     // Constructeur de la classe StatistiquesEquipe, prenant en paramètre un tableau de rencontres
     public function __construct(

@@ -9,8 +9,8 @@ use R301\Modele\Participation\Poste;
 
 // Classe représentant les statistiques d'un joueur, avec des méthodes pour calculer différentes statistiques basées sur les participations du joueur dans les rencontres
 class StatistiquesJoueurs implements \JsonSerializable {
-    private readonly array $participations;
-    private readonly array $rencontresJouees;
+    public readonly array $participations;
+    public readonly array $rencontresJouees;
 
     // Constructeur de la classe StatistiquesJoueurs, prenant en paramètre un tableau de participations et un tableau de rencontres, triant les rencontres par date et filtrant celles qui ont été jouées
     public function __construct(

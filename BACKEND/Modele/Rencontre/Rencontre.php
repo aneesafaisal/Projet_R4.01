@@ -8,12 +8,12 @@ use DateTime;
 
 // Classe représentant une rencontre, avec des informations sur la date, l'équipe adverse, l'adresse, le lieu et le résultat
 class Rencontre implements \JsonSerializable{
-    private int $rencontreId;
-    private DateTime $dateEtHeure;
-    private string $equipeAdverse;
-    private string $adresse;
-    private ?RencontreLieu $lieu;
-    private ?RencontreResultat $resultat;
+    public int $rencontreId;
+    public DateTime $dateEtHeure;
+    public string $equipeAdverse;
+    public string $adresse;
+    public ?RencontreLieu $lieu;
+    public ?RencontreResultat $resultat;
 
     // Constructeur de la classe Rencontre, prenant en paramètre les informations nécessaires pour créer une rencontre
     public function __construct(
@@ -21,7 +21,7 @@ class Rencontre implements \JsonSerializable{
         string $equipeAdverse,
         string $adresse,
         ?RencontreLieu $lieu,
-        RencontreResultat $resultat = null,
+        ?RencontreResultat $resultat,
         int $rencontreId = 0
     ) {
         $this->rencontreId = $rencontreId;

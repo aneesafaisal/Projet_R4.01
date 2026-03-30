@@ -9,9 +9,9 @@ use R301\Modele\Joueur\Joueur;
 
 // Classe représentant un commentaire laissé par un utilisateur sur un joueur
 class Commentaire implements \JsonSerializable {
-    private int $commentaireId;
-    private readonly string $contenu;
-    private readonly DateTime $date;
+    public int $commentaireId;
+    public readonly string $contenu;
+    public readonly DateTime $date;
 
     // Constructeur de la classe Commentaire
     public function __construct(int $commentaireId, string $contenu, DateTime $date)

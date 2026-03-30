@@ -10,14 +10,14 @@ use DateTime;
 class Joueur implements \JsonSerializable{
 
     // Propriétés de la classe Joueur
-    private int $joueurId;
-    private string $nom;
-    private string $prenom;
-    private string $numeroDeLicence;
-    private DateTime $dateDeNaissance;
-    private int $tailleEnCm;
-    private int $poidsEnKg;
-    private ?JoueurStatut $statut;
+    public int $joueurId;
+    public string $nom;
+    public string $prenom;
+    public string $numeroDeLicence;
+    public DateTime $dateDeNaissance;
+    public int $tailleEnCm;
+    public int $poidsEnKg;
+    public ?JoueurStatut $statut;
 
     // Constructeur de la classe Joueur
     public function __construct(

@@ -7,7 +7,7 @@ namespace R301\Controleur;
 class JoueurControleur {
     private static ?JoueurControleur $instance = null;
     private string $apiUrl = "https://equipe.alwaysdata.net/EndpointJoueur.php";
-    private string $token = "";
+    private string $token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzc0ODY3MzY4fQ.s8ZuuVX_DTgy7GrQelaOKfBu3eJUd-nvMx_t1f94JGQ";
 
     // Constructeur vide car on n'utilise plus les models
     private function __construct() {}
@@ -22,20 +22,20 @@ class JoueurControleur {
 
     // Permet d'appeler l'API du backend
     // On a au début utilisé cette Fonction pour les appels a l'API 
-    private function callAPI(string $method, string $url, array $data = null): ?array {
+    private function callAPI(string $method, string $url, ?array $data = null): ?array {
         $curl = curl_init();
 
         switch ($method) {
             case "POST":
                 curl_setopt($curl, CURLOPT_POST, true);
-                if ($data) {
+                if ($data !== null) {
                     curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
                 }
                 break;
 
             case "PUT":
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
-                if ($data) {
+                if ($data !== null) {
                     curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
                 }
                 break;
@@ -44,25 +44,43 @@ class JoueurControleur {
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
                 break;
 
-            default: // GET
-                if ($data) {
+            case "GET":
+                if ($data !== null) {
                     $url .= "?" . http_build_query($data);
                 }
+                break;
         }
 
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $this->token
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $this->token
+            ],
+            CURLOPT_TIMEOUT => 10
         ]);
 
         $result = curl_exec($curl);
+        if ($result === false) {
+            $error = curl_error($curl);
+            curl_close($curl);
+            var_dump("CURL ERROR:", $error); // remove later
+            return null;
+        }
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
         curl_close($curl);
 
-        if (!$result) return null;
+        $decoded = json_decode($result, true);
 
-        return json_decode($result, true);
+        // Optional debug
+        if ($httpCode >= 400) {
+            var_dump("HTTP ERROR:", $httpCode, $decoded);
+            return null;
+        }
+
+        return $decoded;
     }
 
     // Ajoute un nouveau joueur

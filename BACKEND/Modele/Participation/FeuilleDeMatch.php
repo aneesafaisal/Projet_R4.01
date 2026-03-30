@@ -10,7 +10,7 @@ use R301\Modele\Rencontre\Rencontre;
 
 // Classe représentant la feuille de match d'une rencontre, contenant les participants et leurs performances
 class FeuilleDeMatch {
-    private readonly array $participants;
+    public readonly array $participants;
 
     // Constructeur de la classe FeuilleDeMatch, prenant en paramètre un tableau de participants
     public function __construct(array $participants) {

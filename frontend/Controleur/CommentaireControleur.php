@@ -9,7 +9,9 @@ class CommentaireControleur {
     private $apiUrl = "https://equipe.alwaysdata.net/EndpointCommentaire.php";
 
     // Constructeur vide car on n'utilise plus le model Joueur
-    private function __construct() {}
+    private function __construct() {
+        $this->apiUrl = 'https://equipe.alwaysdata.net/EndpointCommentaire.php';
+    }
 
     // Méthode permettant d'obtenir l'instance unique du contrôleur
     public static function getInstance(): CommentaireControleur {
