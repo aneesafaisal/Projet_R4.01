@@ -7,13 +7,12 @@ namespace R301\Controleur;
 class ParticipationControleur {
     private static ?ParticipationControleur $instance = null;
     private string $apiUrl = "https://equipe.alwaysdata.net/EndpointParticipation.php";
-    private string $token;
     
     private function __construct() {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        $this->token = $_SESSION['token'] ?? '';
+        
     }
 
     // Retourne l’instance unique
@@ -27,6 +26,7 @@ class ParticipationControleur {
     // Permet d'appeler l'API du backend
     // On a au début utilisé cette Fonction pour les appels a l'API 
     private function callAPI(string $method, string $url, array $data = null): ?array {
+        $token = $_SESSION['token'] ?? '';
         $curl = curl_init();
 
         switch ($method) {
@@ -59,7 +59,7 @@ class ParticipationControleur {
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
-            'Authorization: Bearer ' . $this->token
+            'Authorization: Bearer ' . $token
         ]);
 
         $result = curl_exec($curl);
