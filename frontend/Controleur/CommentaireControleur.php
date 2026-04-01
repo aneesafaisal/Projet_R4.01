@@ -5,12 +5,14 @@ namespace R301\Controleur;
 
 // Contrôleur gérant les opérations liées aux commentaires
 class CommentaireControleur {
-    private static ?CommentaireControleur $instance = null;
-    private $apiUrl = "https://equipe.alwaysdata.net/EndpointCommentaire.php";
-
-    // Constructeur vide car on n'utilise plus le model Joueur
+    private string $apiUrl = "https://equipe.alwaysdata.net/EndpointCommentaire.php";
+    private string $token;
+    
     private function __construct() {
-        $this->apiUrl = 'https://equipe.alwaysdata.net/EndpointCommentaire.php';
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $this->token = $_SESSION['token'] ?? '';
     }
 
     // Méthode permettant d'obtenir l'instance unique du contrôleur

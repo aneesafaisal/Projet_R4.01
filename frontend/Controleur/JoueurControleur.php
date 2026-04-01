@@ -7,10 +7,14 @@ namespace R301\Controleur;
 class JoueurControleur {
     private static ?JoueurControleur $instance = null;
     private string $apiUrl = "https://equipe.alwaysdata.net/EndpointJoueur.php";
-    private string $token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzc0ODY3MzY4fQ.s8ZuuVX_DTgy7GrQelaOKfBu3eJUd-nvMx_t1f94JGQ";
-
-    // Constructeur vide car on n'utilise plus les models
-    private function __construct() {}
+    private string $token;
+    
+    private function __construct() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $this->token = $_SESSION['token'] ?? '';
+    }
 
     // Retourne l’instance unique du contrôleur
     public static function getInstance(): JoueurControleur {

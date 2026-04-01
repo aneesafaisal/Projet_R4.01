@@ -6,7 +6,7 @@ namespace R301\Controleur;
 // Contrôleur dédié au calcul des statistiques
 class StatistiquesControleur {
     private static ?StatistiquesControleur $instance = null;
-    private $apiUrl = "https://equipe.alwaysdata.net/EndpointStatistiques.php";
+    private string $apiUrl = "https://equipe.alwaysdata.net/EndpointStatistiques.php";
     private string $token;
     
     private function __construct() {
