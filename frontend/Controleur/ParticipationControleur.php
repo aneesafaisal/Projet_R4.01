@@ -1,9 +1,7 @@
 <?php
 
-// Déclaration du namespace
 namespace R301\Controleur;
 
-// Contrôleur gérant les participations des joueurs aux matchs
 class ParticipationControleur {
     private static ?ParticipationControleur $instance = null;
     private string $apiUrl = "https://equipe.alwaysdata.net/EndpointParticipation.php";
@@ -12,10 +10,8 @@ class ParticipationControleur {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        
     }
 
-    // Retourne l’instance unique
     public static function getInstance(): ParticipationControleur {
         if (self::$instance === null) {
             self::$instance = new ParticipationControleur();
@@ -23,8 +19,6 @@ class ParticipationControleur {
         return self::$instance;
     }
 
-    // Permet d'appeler l'API du backend
-    // On a au début utilisé cette Fonction pour les appels a l'API 
     private function callAPI(string $method, string $url, array $data = null): ?array {
         $token = $_SESSION['token'] ?? '';
         $curl = curl_init();
@@ -70,35 +64,22 @@ class ParticipationControleur {
     }
 
     // Vérifie si un joueur est déjà présent sur la feuille de match
-    public function lejoueurEstDejaSurLaFeuilleDeMatch(int $rencontreId, int $joueurId) : bool {
-        $options = [
-            'http' => [
-                'method'        => 'GET',
-                'ignore_errors' => true
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $url = $this->apiUrl . "?rencontre_id=" . $rencontreId . "&joueur_id=" . $joueurId . "&check=feuille";
-        $response = file_get_contents($url, false, $context);
-        $res = json_decode($response, true);
-        return isset($res['data']) && $res['data'] === true;
+    public function lejoueurEstDejaSurLaFeuilleDeMatch(int $rencontreId, int $joueurId): bool {
+        $response = $this->callAPI("GET", $this->apiUrl, [
+            'rencontre_id' => $rencontreId,
+            'joueur_id'    => $joueurId,
+            'check'        => 'feuille'
+        ]);
+        return isset($response['data']) && $response['data'] === true;
     }
 
     // Liste toutes les participations
-    public function listerToutesLesParticipations() : array {
-        $options = [
-            'http' => [
-                'method'        => 'GET',
-                'ignore_errors' => true
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $response = file_get_contents($this->apiUrl, false, $context);
-        $res = json_decode($response, true);
-        return $res['data'] ?? [];
+    public function listerToutesLesParticipations(): array {
+        $response = $this->callAPI("GET", $this->apiUrl);
+        return $response['data'] ?? [];
     }
 
-    // Récupère la feuille de match d’une rencontre
+    // Récupère la feuille de match d'une rencontre
     public function getFeuilleDeMatch(int $rencontreId): array {
         $response = $this->callAPI("GET", $this->apiUrl, ['rencontre_id' => $rencontreId]);
         if ($response === null || $response['status_code'] !== 200) {
@@ -106,32 +87,21 @@ class ParticipationControleur {
         }
         return $response['data'] ?? [];
     }
-    
+
     // Assigne un joueur à une rencontre avec un poste et un statut
     public function assignerUnParticipant(
         int $joueurId,
         int $rencontreId,
         string $poste,
         string $titulaireOuRemplacant
-    ) : bool {
-        $data = [
+    ): bool {
+        $response = $this->callAPI("POST", $this->apiUrl, [
             "joueur_id"               => $joueurId,
             "rencontre_id"            => $rencontreId,
             "poste"                   => $poste,
             "titulaire_ou_remplacant" => $titulaireOuRemplacant
-        ];
-        $options = [
-            'http' => [
-                'method'        => 'POST',
-                'header'        => "Content-Type: application/json",
-                'content'       => json_encode($data),
-                'ignore_errors' => true
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $response = file_get_contents($this->apiUrl, false, $context);
-        $res      = json_decode($response, true);
-        return isset($res['status_code']) && $res['status_code'] === 201;
+        ]);
+        return isset($response['status_code']) && $response['status_code'] === 201;
     }
 
     // Modifie une participation existante
@@ -140,74 +110,34 @@ class ParticipationControleur {
         string $poste,
         string $titulaireOuRemplacant,
         int $joueurId
-    ) : bool {
-        $data = [
+    ): bool {
+        $response = $this->callAPI("PUT", $this->apiUrl . "?id=" . $participationId, [
             "joueur_id"               => $joueurId,
             "poste"                   => $poste,
             "titulaire_ou_remplacant" => $titulaireOuRemplacant
-        ];
-        $options = [
-            'http' => [
-                'method'        => 'PUT',
-                'header'        => "Content-Type: application/json",
-                'content'       => json_encode($data),
-                'ignore_errors' => true
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $url      = $this->apiUrl . "?id=" . $participationId;
-        $response = file_get_contents($url, false, $context);
-        $res      = json_decode($response, true);
-        return isset($res['status_code']) && $res['status_code'] === 200;
+        ]);
+        return isset($response['status_code']) && $response['status_code'] === 200;
     }
 
     // Supprime une participation
-    public function supprimerLaParticipation(int $participationId) : bool {
-        $url = $this->apiUrl . "?id=" . $participationId;
-        $options = [
-            'http' => [
-                'method' => 'DELETE',
-                'ignore_errors' => true
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $response = file_get_contents($url, false, $context);
-        $res = json_decode($response, true);
-        return isset($res['status_code']) && $res['status_code'] === 200;
+    public function supprimerLaParticipation(int $participationId): bool {
+        $response = $this->callAPI("DELETE", $this->apiUrl . "?id=" . $participationId);
+        return isset($response['status_code']) && $response['status_code'] === 200;
     }
 
-    // Met à jour la performance d’un joueur 
+    // Met à jour la performance d'un joueur
     public function mettreAJourLaPerformance(int $participationId, string $performance): bool {
-    $data = ['performance' => $performance];
-    $options = [
-        'http' => [
-            'method'        => 'POST',
-            'header'        => "Content-Type: application/json\r\n",
-            'content'       => json_encode($data),
-            'ignore_errors' => true
-        ]
-    ];
-    $context  = stream_context_create($options);
-    $url      = $this->apiUrl . "?id=" . $participationId;
-    $response = file_get_contents($url, false, $context);
-    $res      = json_decode($response, true);
-    return isset($res['status_code']) && $res['status_code'] === 200;
-}
+        $response = $this->callAPI("POST", $this->apiUrl . "?id=" . $participationId, [
+            'performance' => $performance
+        ]);
+        return isset($response['status_code']) && $response['status_code'] === 200;
+    }
 
-// Supprime la performance d’un joueur
-public function supprimerLaPerformance(int $participationId): bool {
-    $options = [
-        'http' => [
-            'method'        => 'DELETE',
-            'ignore_errors' => true
-        ]
-    ];
-    $context  = stream_context_create($options);
-    $url      = $this->apiUrl . "?id=" . $participationId . "&action=delete_performance";
-    $response = file_get_contents($url, false, $context);
-    $res      = json_decode($response, true);
-    return isset($res['status_code']) && $res['status_code'] === 200;
-}
+    // Supprime la performance d'un joueur
+    public function supprimerLaPerformance(int $participationId): bool {
+        $response = $this->callAPI("DELETE", $this->apiUrl . "?id=" . $participationId . "&action=delete_performance");
+        return isset($response['status_code']) && $response['status_code'] === 200;
+    }
 }
 
 ?>
