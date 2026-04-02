@@ -29,25 +29,29 @@ class StatistiquesControleur {
         ];
         $context  = stream_context_create($options);
         $response = file_get_contents($this->apiUrl, false, $context);
-        return json_decode($response);
+        return json_decode($response, true);
     }
 
     // Récupère les statistiques globales de l'équipe
     public function getStatistiquesEquipe() {
         $res = $this->callAPI();
-        if ($res->status_code !== 200) {
+
+        if (($res['status_code'] ?? 0) !== 200) {
             return [];
         }
-        return $res->data->statistiques_equipe;
+
+        return $res['data']['statistiques_equipe'] ?? [];
     }
 
     // Récupère les statistiques des joueurs
     public function getStatistiquesJoueurs() {
         $res = $this->callAPI();
-        if ($res->status_code !== 200) {
+
+        if (($res['status_code'] ?? 0) !== 200) {
             return [];
         }
-        return $res->data->statistiques_joueurs;
+
+        return $res['data']['statistiques_joueurs'] ?? [];
     }
 }
 
