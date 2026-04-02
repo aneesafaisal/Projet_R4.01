@@ -16,9 +16,6 @@ $loader->addNamespace('R301', __DIR__);
 // Obtention de l'instance du contrôleur des rencontres pour gérer les opérations liées aux rencontres
 $controleur = RencontreControleur::getInstance();
 
-$user = getUser();
-$role = $user->role;
-
 // Récupération de la méthode HTTP utilisée pour la requête
 $http_method = $_SERVER['REQUEST_METHOD'];
 
@@ -41,6 +38,8 @@ try {
 
         // Gestion de la méthode POST pour créer une rencontre, en vérifiant que les champs nécessaires sont présents dans le JSON de la requête, puis en appelant le contrôleur pour créer la rencontre et en répondant avec un code 201 Created si la création a réussi ou 400 Bad Request si la création a échoué (JSON invalide ou champs manquants)    
         case 'POST':
+            $user = getUser();
+            $role = $user->role;
             if ($role !== 'admin' && $role !== 'coach') {
                 deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour ajouter une rencontre");
             }
@@ -63,6 +62,8 @@ try {
 
         // Gestion de la méthode PUT pour modifier une rencontre, en vérifiant que l'id de la rencontre à modifier est présent, que les champs nécessaires sont présents dans le JSON de la requête, puis en appelant le contrôleur pour modifier la rencontre et en répondant avec un code 200 OK si la modification a réussi ou 400 Bad Request si la modification a échoué (JSON invalide, champs manquants ou rencontre non trouvée)    
         case 'PUT':
+            $user = getUser();
+            $role = $user->role;
             if ($role !== 'admin' && $role !== 'coach') {
                 deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour modifier une rencontre");
             }
@@ -94,6 +95,8 @@ try {
 
         // Gestion de la méthode PATCH pour mettre à jour le résultat d'une rencontre, en vérifiant que l'id de la rencontre à modifier est présent, que le champ resultat est présent dans le JSON de la requête, puis en appelant le contrôleur pour enregistrer le résultat et en répondant avec un code 200 OK si l'enregistrement a réussi ou 400 Bad Request si l'enregistrement a échoué (rencontre non encore passée ou résultat invalide)    
         case 'PATCH':
+            $user = getUser();
+            $role = $user->role;
             if ($role !== 'admin' && $role !== 'coach') {
                 deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour modifier une rencontre");
             }
@@ -119,6 +122,8 @@ try {
 
         // Gestion de la méthode DELETE pour supprimer une rencontre, en vérifiant que l'id de la rencontre à supprimer est présent, puis en appelant le contrôleur pour supprimer la rencontre et en répondant avec un code 200 OK si la suppression a réussi ou 404 Not Found si la rencontre n'a pas été trouvée    
         case 'DELETE':
+            $user = getUser();
+            $role = $user->role;
             if ($role !== 'admin' && $role !== 'coach') {
                 deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour supprimer une rencontre");
             }
