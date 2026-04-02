@@ -4,6 +4,7 @@
 require_once 'Psr4AutoloaderClass.php';
 require_once 'outils.php';
 
+
 // Importation des classes nécessaires du namespace R301
 use R301\Psr4AutoloaderClass;
 use R301\Controleur\StatistiquesControleur;

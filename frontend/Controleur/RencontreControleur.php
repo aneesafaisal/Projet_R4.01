@@ -1,13 +1,11 @@
 <?php
 
-// Déclaration du namespace
 namespace R301\Controleur;
 
-// Contrôleur gérant les opérations liées aux rencontres (matchs)
 class RencontreControleur {
-    private static ?RencontreControleur $instance = null;
+    private static $instance = null;
     private string $apiUrl = "https://equipe.alwaysdata.net/EndpointRencontre.php";
-    
+
     private function __construct() {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -22,131 +20,79 @@ class RencontreControleur {
         return self::$instance;
     }
 
-    // Permet d'appeler l'API du backend
-    // On a au début utilisé cette Fonction pour les appels a l'API 
-    private function callAPI(string $method, string $url, array $data = null): ?array {
-        $token = $_SESSION['token'] ?? '';
-        $curl = curl_init();
-
-        switch ($method) {
-            case "POST":
-                curl_setopt($curl, CURLOPT_POST, true);
-                if ($data) {
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
-                }
-                break;
-
-            case "PUT":
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
-                if ($data) {
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
-                }
-                break;
-
-            case "PATCH":
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PATCH");
-                if ($data) {
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
-                }
-                break;
-
-            case "DELETE":
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-                break;
-
-            default: // GET
-                if ($data) {
-                    $url .= "?" . http_build_query($data);
-                }
+    // Permet d'appeler l'API du backend pour les opérations liées aux rencontres
+    private function callAPI(string $method, string $url, $data = null, bool $withToken = false) {
+        $headers = ["Content-Type: application/json"];
+        if ($withToken) {
+            $headers[] = "Authorization: Bearer " . ($_SESSION['token'] ?? '');
         }
-
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $token
-        ]);
-
-        $result = curl_exec($curl);
-        curl_close($curl);
-
-        if (!$result) return null;
-
-        return json_decode($result, true);
-    }
-
-    // Ajoute une nouvelle rencontre
-    public function ajouterRencontre(
-        string $dateHeure,
-        string $equipeAdverse,
-        string $adresse,
-        string $lieu
-    ): bool {
-        $data = [
-            'dateHeure'     => $dateHeure,
-            'equipeAdverse' => $equipeAdverse,
-            'adresse'       => $adresse,
-            'lieu'          => $lieu
+        $options = [
+            'http' => [
+                'method'        => $method,
+                'header'        => implode("\r\n", $headers) . "\r\n",
+                'content'       => $data ? json_encode($data) : null,
+                'ignore_errors' => true
+            ]
         ];
-
-        $response = $this->callAPI("POST", $this->apiUrl, $data);
-        return $response !== null && $response['status_code'] === 201;
+        $context  = stream_context_create($options);
+        $response = file_get_contents($url, false, $context);
+        return json_decode($response, true);
     }
 
-    // Enregistre le résultat d’une rencontre
-    public function enregistrerResultat(
-        int $id,
-        string $resultat
-    ): bool {
-        $data = ['resultat' => $resultat];
-        $response = $this->callAPI("PATCH", $this->apiUrl . "?id=" . $id, $data);
-        return $response !== null && $response['status_code'] === 200;
-    }
-
-    // Récupère une rencontre par son identifiant
-    public function getRencontreById(int $id): ?array {
-        $response = $this->callAPI("GET", $this->apiUrl, ['id' => $id]);
-
-        if ($response === null || $response['status_code'] !== 200) {
+    // Methode GET pour récupérer une rencontre par son id, public, pas de token
+    public function getRencontreById(int $id) {
+        $res = $this->callAPI("GET", $this->apiUrl . "?id=" . $id);
+        if ($res === null || $res['status_code'] !== 200) {
             return null;
         }
-
-        return $response['data'];
+        return $res['data'];
     }
 
-    // Liste toutes les rencontres
+    // Methode GET pour lister toutes les rencontres, public, pas de token
     public function listerToutesLesRencontres(): array {
-        $response = $this->callAPI("GET", $this->apiUrl);
-        
-        if ($response === null || $response['status_code'] !== 200) {
+        $res = $this->callAPI("GET", $this->apiUrl);
+        if ($res === null || $res['status_code'] !== 200) {
             return [];
         }
-
-        return $response['data'] ?? [];
+        if (isset($res['data'])) {
+            return $res['data'];
+        }
+        return [];
     }
 
-    // Modifie une rencontre existante
-    public function modifierRencontre(
-        int $id,
-        string $dateHeure,
-        string $equipeAdverse,
-        string $adresse,
-        string $lieu
-    ): bool {
-        $data = [
+    // Methode POST pour ajouter une rencontre, protégé par token   
+    public function ajouterRencontre(string $dateHeure, string $equipeAdverse, string $adresse, string $lieu): bool {
+        $res = $this->callAPI("POST", $this->apiUrl, [
             'dateHeure'     => $dateHeure,
             'equipeAdverse' => $equipeAdverse,
             'adresse'       => $adresse,
             'lieu'          => $lieu
-        ];
-
-        $response = $this->callAPI("PUT", $this->apiUrl . "?id=" . $id, $data);
-        return $response !== null && $response['status_code'] === 200;
+        ], true);
+        return $res !== null && $res['status_code'] === 201;
     }
 
-    // Supprime une rencontre (uniquement si aucun résultat n’est enregistré)
+    // Methode PUT pour modifier une rencontre, protégé par token
+    public function modifierRencontre(int $id, string $dateHeure, string $equipeAdverse, string $adresse, string $lieu): bool {
+        $res = $this->callAPI("PUT", $this->apiUrl . "?id=" . $id, [
+            'dateHeure'     => $dateHeure,
+            'equipeAdverse' => $equipeAdverse,
+            'adresse'       => $adresse,
+            'lieu'          => $lieu
+        ], true);
+        return $res !== null && $res['status_code'] === 200;
+    }
+
+    // Methode PATCH pour enregistrer le résultat d'une rencontre, protégé par token
+    public function enregistrerResultat(int $id, string $resultat): bool {
+        $res = $this->callAPI("PATCH", $this->apiUrl . "?id=" . $id, [
+            'resultat' => $resultat
+        ], true);
+        return $res !== null && $res['status_code'] === 200;
+    }
+
+    // Methode DELETE pour supprimer une rencontre, protégé par token
     public function supprimerRencontre(int $id): bool {
-        $response = $this->callAPI("DELETE", $this->apiUrl . "?id=" . $id);
-        return $response !== null && $response['status_code'] === 200;
+        $res = $this->callAPI("DELETE", $this->apiUrl . "?id=" . $id, null, true);
+        return $res !== null && $res['status_code'] === 200;
     }
 }

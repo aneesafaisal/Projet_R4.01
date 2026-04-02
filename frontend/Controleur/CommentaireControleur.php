@@ -1,78 +1,66 @@
 <?php
 
-// Déclaration du namespace pour organiser le code
 namespace R301\Controleur;
 
-// Contrôleur gérant les opérations liées aux commentaires
 class CommentaireControleur {
+    private static $instance = null;
     private string $apiUrl = "https://equipe.alwaysdata.net/EndpointCommentaire.php";
-    private string $token;
-    
+
+    // Constructeur privé pour empêcher l'instanciation directe
     private function __construct() {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        $this->token = $_SESSION['token'] ?? '';
     }
 
-    // Méthode permettant d'obtenir l'instance unique du contrôleur
+    // Retourne l'instance unique du contrôleur
     public static function getInstance(): CommentaireControleur {
-        if (self::$instance == null) {
+        if (self::$instance === null) {
             self::$instance = new CommentaireControleur();
         }
         return self::$instance;
     }
 
-    // Ajoute un nouveau commentaire pour un joueur donné
-    public function ajouterCommentaire(
-        string $contenu,
-        string $joueurId
-    ){
-        $data = [
-            "contenu" => $contenu,
-            "joueur_id" => $joueurId
-        ];
+    // Permet d'appeler l'API du backend pour les opérations liées aux commentaires
+    private function callAPI(string $method, string $url, $data = null, bool $withToken = false) {
+        $headers = ["Content-Type: application/json"];
+
+        if ($withToken) {
+            $headers[] = "Authorization: Bearer " . ($_SESSION['token'] ?? '');
+        }
+
         $options = [
             'http' => [
-                'method'  => 'POST',
-                'header'  => "Content-Type: application/json",
-                'content' => json_encode($data),
+                'method'        => $method,
+                'header'        => implode("\r\n", $headers) . "\r\n",
+                'content'       => $data ? json_encode($data) : null,
                 'ignore_errors' => true
             ]
         ];
+
         $context  = stream_context_create($options);
-        $response = file_get_contents($this->apiUrl, false, $context);
-        $res = json_decode($response, true);
-        return isset($res['status_code']) && $res['status_code'] === 201;
+        $response = file_get_contents($url, false, $context);
+        return json_decode($response, true);
     }
 
-    // Récupère la liste des commentaires d’un joueur
-    public function listerLesCommentairesDuJoueur(Int $id) : array {
-        $options = [
-            'http' => [
-                'method'        => 'GET',
-                'ignore_errors' => true
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $url = $this->apiUrl . "?joueur_id=" . $id;
-        $response = file_get_contents($url, false, $context);
-        $res = json_decode($response, true);
+    // Lister les commentaires d'un joueur
+    public function listerLesCommentairesDuJoueur(int $id): array {
+        $res = $this->callAPI("GET", $this->apiUrl . "?joueur_id=" . $id);
         return $res['data'] ?? [];
     }
 
-    // Supprime un commentaire à partir de son identifiant
-    public function supprimerCommentaire(string $commentaireId) : bool {
-        $url = $this->apiUrl . "?id=" . $commentaireId;
-        $options = [
-            'http' => [
-                'method'        => 'DELETE',
-                'ignore_errors' => true
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $response = file_get_contents($url, false, $context);
-        $res = json_decode($response, true);
+    // Ajouter un commentaire
+    public function ajouterCommentaire(string $contenu, string $joueurId): bool {
+        $res = $this->callAPI("POST", $this->apiUrl, [
+            "contenu"   => $contenu,
+            "joueur_id" => $joueurId
+        ], true);
+        return isset($res['status_code']) && $res['status_code'] === 201;
+    }
+
+    // Supprimer un commentaire
+    public function supprimerCommentaire(string $commentaireId): bool {
+        $res = $this->callAPI("DELETE", $this->apiUrl . "?id=" . $commentaireId, null, true);
         return isset($res['status_code']) && $res['status_code'] === 200;
     }
 }
