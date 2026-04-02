@@ -20,9 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     deliver_response(204, "Méthode OPTIONS autorisée");
 }
 
-$user = getUser();
-$role = $user->role;
-
 // Récupération de la méthode HTTP utilisée pour la requête
 $http_method = $_SERVER['REQUEST_METHOD'];
 
@@ -50,6 +47,8 @@ try {
 
         // Gestion de la méthode POST pour ajouter un commentaire, en vérifiant que les champs nécessaires sont présents dans le JSON de la requête et en appelant le contrôleur pour créer le commentaire
         case 'POST':
+            $user = getUser();
+            $role = $user->role;
             if ($role !== 'admin' && $role !== 'coach') {
                 deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour ajouter un commentaire");
             }
@@ -76,6 +75,8 @@ try {
 
         // Gestion de la méthode DELETE pour supprimer un commentaire, en vérifiant que le paramètre id est présent et en appelant le contrôleur pour supprimer le commentaire
         case 'DELETE':
+            $user = getUser();
+            $role = $user->role;
             if ($role !== 'admin' && $role !== 'coach') {
                 deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour ajouter un commentaire");
             }
