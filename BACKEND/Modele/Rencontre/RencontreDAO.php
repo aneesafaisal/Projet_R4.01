@@ -97,6 +97,7 @@ class RencontreDAO {
         $statement->bindValue(':equipe_adverse', $rencontreAModifier->getEquipeAdverse());
         $statement->bindValue(':adresse', $rencontreAModifier->getAdresse());
         $statement->bindValue(':lieu', $rencontreAModifier->getLieu()?->name);
+        $statement->bindValue(':resultat', $rencontreAModifier->getResultat());
         return $statement->execute();
     }
 
