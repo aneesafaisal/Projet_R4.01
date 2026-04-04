@@ -54,7 +54,6 @@ $rencontres = $controleur->listerToutesLesRencontres();
 
             $resultatActuel = isset($rencontre['resultat']) ? $rencontre['resultat'] : null;
             $selectResultat = new SelectResultat(null, $resultatActuel);
-            var_dump($data);
             $dateMatch = new DateTime($rencontre['dateEtHeure']);
             $estPassee = $dateMatch < new DateTime();
         ?>
