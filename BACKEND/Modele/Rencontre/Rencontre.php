@@ -7,7 +7,8 @@ namespace R301\Modele\Rencontre;
 use DateTime;
 
 // Classe représentant une rencontre, avec des informations sur la date, l'équipe adverse, l'adresse, le lieu et le résultat
-class Rencontre implements \JsonSerializable{
+class Rencontre implements \JsonSerializable
+{
     public int $rencontreId;
     public DateTime $dateEtHeure;
     public string $equipeAdverse;
@@ -43,7 +44,8 @@ class Rencontre implements \JsonSerializable{
         return $this->dateEtHeure;
     }
 
-    public function setDateEtHeure(DateTime $dateEtHeure): void {
+    public function setDateEtHeure(DateTime $dateEtHeure): void
+    {
         $this->dateEtHeure = $dateEtHeure;
     }
 
@@ -77,19 +79,23 @@ class Rencontre implements \JsonSerializable{
         $this->lieu = $lieu;
     }
 
-    public function joue(): bool {
+    public function joue(): bool
+    {
         return $this->resultat !== null;
     }
 
-    public function gagne(): bool {
+    public function gagne(): bool
+    {
         return $this->resultat === RencontreResultat::VICTOIRE;
     }
 
-    public function nul(): bool {
+    public function nul(): bool
+    {
         return $this->resultat === RencontreResultat::NUL;
     }
 
-    public function perdu(): bool {
+    public function perdu(): bool
+    {
         return $this->resultat === RencontreResultat::DEFAITE;
     }
 
@@ -103,7 +109,8 @@ class Rencontre implements \JsonSerializable{
         $this->resultat = $resultat;
     }
 
-    public function estPassee(): bool {
+    public function estPassee(): bool
+    {
         return $this->dateEtHeure < new DateTime();
     }
 
@@ -111,12 +118,12 @@ class Rencontre implements \JsonSerializable{
     public function jsonSerialize(): array
     {
         return [
-            'rencontreId'     => $this->getRencontreId(),
-            'dateEtHeure'     => $this->getDateEtHeure()->format('Y-m-d H:i:s'), 
-            'equipeAdverse'   => $this->getEquipeAdverse(),
-            'adresse'         => $this->getAdresse(),
-            'lieu'            => $this->getLieu()?->name,      
-            'resultat'        => $this->getResultat()?->name   
+            'rencontreId' => $this->getRencontreId(),
+            'dateEtHeure' => $this->getDateEtHeure()->format('Y-m-d H:i:s'),
+            'equipeAdverse' => $this->getEquipeAdverse(),
+            'adresse' => $this->getAdresse(),
+            'lieu' => $this->getLieu()?->name,
+            'resultat' => $this->getResultat()?->name
         ];
     }
 }

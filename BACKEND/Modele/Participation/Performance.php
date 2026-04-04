@@ -16,7 +16,7 @@ enum Performance: int
     public static function fromName(string $name): ?Performance
     {
         foreach (self::cases() as $performance) {
-            if( $name === $performance->name ){
+            if ($name === $performance->name) {
                 return $performance;
             }
         }
@@ -28,7 +28,7 @@ enum Performance: int
     public static function fromValue(int $value): ?Performance
     {
         foreach (self::cases() as $performance) {
-            if( $value === $performance->value ){
+            if ($value === $performance->value) {
                 return $performance;
             }
         }

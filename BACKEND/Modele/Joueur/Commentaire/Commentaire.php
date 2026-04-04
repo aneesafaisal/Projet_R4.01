@@ -8,7 +8,8 @@ use DateTime;
 use R301\Modele\Joueur\Joueur;
 
 // Classe représentant un commentaire laissé par un utilisateur sur un joueur
-class Commentaire implements \JsonSerializable {
+class Commentaire implements \JsonSerializable
+{
     public int $commentaireId;
     public readonly string $contenu;
     public readonly DateTime $date;
@@ -26,7 +27,7 @@ class Commentaire implements \JsonSerializable {
     {
         return $this->commentaireId;
     }
-    
+
     public function getContenu(): string
     {
         return $this->contenu;
@@ -38,11 +39,12 @@ class Commentaire implements \JsonSerializable {
     }
 
     // Méthode pour convertir l'objet en format JSON
-    public function jsonSerialize(): array {
+    public function jsonSerialize(): array
+    {
         return [
             'commentaireId' => $this->commentaireId,
-            'contenu'       => $this->contenu,
-            'date'          => $this->date->format('Y-m-d H:i:s')
+            'contenu' => $this->contenu,
+            'date' => $this->date->format('Y-m-d H:i:s')
         ];
     }
 }

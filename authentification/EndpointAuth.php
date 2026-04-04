@@ -7,7 +7,7 @@ require_once("jwt_utils.php");
 header("Content-Type: application/json");
 
 // Récupération de la clé secrète JWT depuis les variables d'environnement
-$secret = getenv('JWT_SECRET') ?: 'asdfghjklzxcvbnm123456789';
+$secret = getenv('JWT_SECRET');
 
 // Vérifie que la clé secrète existe
 if (!$secret) {
@@ -57,9 +57,9 @@ try {
     // Création du payload (données contenues dans le token)
     $payload = [
         "login" => $user["login"],
-        "role"  => $user["role"],
+        "role" => $user["role"],
         // expiration dans 1 heure
-        "exp"   => time() + 3600
+        "exp" => time() + 3600
     ];
 
     // Génération du token JWT
@@ -73,8 +73,4 @@ try {
     http_response_code(500);
     echo json_encode(["message" => "Erreur serveur", "debug" => $e->getMessage()]);
 }
-
-
-
-
 ?>

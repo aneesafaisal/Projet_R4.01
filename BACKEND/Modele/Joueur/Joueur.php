@@ -7,7 +7,8 @@ namespace R301\Modele\Joueur;
 use DateTime;
 
 // Classe représentant un joueur de l'équipe
-class Joueur implements \JsonSerializable{
+class Joueur implements \JsonSerializable
+{
 
     // Propriétés de la classe Joueur
     public int $joueurId;
@@ -41,13 +42,15 @@ class Joueur implements \JsonSerializable{
     }
 
     // Méthode pour vérifier si le nom ou le prénom du joueur contient une chaîne de recherche donnée
-    public function nomOuPrenomContient(string $recherche) : bool {
+    public function nomOuPrenomContient(string $recherche): bool
+    {
         return str_contains(strtolower($this->nom), strtolower($recherche))
             || str_contains(strtolower($this->prenom), strtolower($recherche));
     }
 
     // Méthode pour obtenir une représentation textuelle du joueur, incluant son numéro de licence, son nom et son prénom, ainsi que son statut s'il n'est pas actif
-    public function toString() : string {
+    public function toString(): string
+    {
         $selectableString = "";
         $selectableString .= $this->getNumeroDeLicence() . ' : ' . $this->nom . ' ' . $this->prenom;
 
@@ -68,31 +71,38 @@ class Joueur implements \JsonSerializable{
         $this->joueurId = $joueurId;
     }
 
-    public function getNom() {
+    public function getNom()
+    {
         return $this->nom;
     }
 
-    public function getPrenom() {
+    public function getPrenom()
+    {
         return $this->prenom;
     }
 
-    public function getNumeroDeLicence() {
+    public function getNumeroDeLicence()
+    {
         return $this->numeroDeLicence;
     }
 
-    public function getDateDeNaissance() : DateTime {
+    public function getDateDeNaissance(): DateTime
+    {
         return $this->dateDeNaissance;
     }
 
-    public function getTailleEnCm() {
+    public function getTailleEnCm()
+    {
         return $this->tailleEnCm;
     }
 
-    public function getPoidsEnKg() {
+    public function getPoidsEnKg()
+    {
         return $this->poidsEnKg;
     }
 
-    public function getStatut() {
+    public function getStatut()
+    {
         return $this->statut;
     }
 
@@ -135,14 +145,14 @@ class Joueur implements \JsonSerializable{
     public function jsonSerialize(): array
     {
         return [
-            'joueurId'          => $this->getJoueurId(),
-            'nom'               => $this->getNom(),
-            'prenom'            => $this->getPrenom(),
-            'numeroDeLicence'   => $this->getNumeroDeLicence(),
-            'dateDeNaissance'   => $this->getDateDeNaissance()->format('Y-m-d'), 
-            'tailleEnCm'        => $this->getTailleEnCm(),
-            'poidsEnKg'         => $this->getPoidsEnKg(),
-            'statut'            => $this->getStatut()->name,   
+            'joueurId' => $this->getJoueurId(),
+            'nom' => $this->getNom(),
+            'prenom' => $this->getPrenom(),
+            'numeroDeLicence' => $this->getNumeroDeLicence(),
+            'dateDeNaissance' => $this->getDateDeNaissance()->format('Y-m-d'),
+            'tailleEnCm' => $this->getTailleEnCm(),
+            'poidsEnKg' => $this->getPoidsEnKg(),
+            'statut' => $this->getStatut()->name,
         ];
     }
 }

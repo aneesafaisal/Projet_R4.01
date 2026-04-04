@@ -4,12 +4,14 @@
 namespace rencontre;
 
 // Classe représentant le résultat d'une rencontre, avec les scores de l'équipe et des adversaires
-class Resultat {
+class Resultat
+{
     private int $scoreDeLequipe;
     private int $scoreDesAdversaires;
 
     // Constructeur de la classe Resultat, prenant en paramètre les scores de l'équipe et des adversaires
-    public function __construct(int $scoreDeLequipe, int $scoreDesAdversaires) {
+    public function __construct(int $scoreDeLequipe, int $scoreDesAdversaires)
+    {
         $this->scoreDeLequipe = $scoreDeLequipe;
         $this->scoreDesAdversaires = $scoreDesAdversaires;
     }
@@ -18,29 +20,34 @@ class Resultat {
     public static function constructFromDB(
         int $scoreDeLequipe,
         int $scoreDesAdversaires
-    ) : Resultat {
+    ): Resultat {
         return new Resultat($scoreDeLequipe, $scoreDesAdversaires);
     }
 
     // Méthode pour déterminer le sens du résultat (victoire, défaite ou nul) en fonction des scores de l'équipe et des adversaires
-    public function getSensDuResultat(): SensDuResultat {
+    public function getSensDuResultat(): SensDuResultat
+    {
         return SensDuResultat::fromResultat($this);
     }
 
     // Getters et setters pour les propriétés de la classe Resultat
-    public function getScoreDeLequipe(): int {
+    public function getScoreDeLequipe(): int
+    {
         return $this->scoreDeLequipe;
     }
 
-    public function setScoreDeLequipe(int $scoreDeLequipe): void {
+    public function setScoreDeLequipe(int $scoreDeLequipe): void
+    {
         $this->scoreDeLequipe = $scoreDeLequipe;
     }
 
-    public function getScoreDesAdversaires(): int {
+    public function getScoreDesAdversaires(): int
+    {
         return $this->scoreDesAdversaires;
     }
 
-    public function setScoreDesAdversaires(int $scoreDesAdversaires): void {
+    public function setScoreDesAdversaires(int $scoreDesAdversaires): void
+    {
         $this->scoreDesAdversaires = $scoreDesAdversaires;
     }
 }

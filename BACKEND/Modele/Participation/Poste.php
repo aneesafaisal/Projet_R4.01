@@ -16,7 +16,7 @@ enum Poste
     public static function fromName(string $name): ?Poste
     {
         foreach (self::cases() as $poste) {
-            if( $name === $poste->name ){
+            if ($name === $poste->name) {
                 return $poste;
             }
         }

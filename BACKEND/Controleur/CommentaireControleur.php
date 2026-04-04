@@ -12,17 +12,20 @@ use R301\Modele\Joueur\JoueurDAO;
 use R301\Modele\Joueur\JoueurStatut;
 
 // Contrôleur gérant les opérations liées aux commentaires
-class CommentaireControleur {
+class CommentaireControleur
+{
     private static ?CommentaireControleur $instance = null;
     private readonly CommentaireDAO $commentaires;
 
     // Constructeur privé pour empêcher l'instanciation directe
-    private function __construct() {
+    private function __construct()
+    {
         $this->commentaires = CommentaireDAO::getInstance();
     }
 
     // Méthode permettant d'obtenir l'instance unique du contrôleur
-    public static function getInstance(): CommentaireControleur {
+    public static function getInstance(): CommentaireControleur
+    {
         if (self::$instance == null) {
             self::$instance = new CommentaireControleur();
         }
@@ -33,7 +36,7 @@ class CommentaireControleur {
     public function ajouterCommentaire(
         string $contenu,
         string $joueurId
-    ) : bool {
+    ): bool {
 
         $commentaireACreer = new Commentaire(
             0,
@@ -45,12 +48,14 @@ class CommentaireControleur {
     }
 
     // Récupère la liste des commentaires d’un joueur
-    public function listerLesCommentairesDuJoueur(Joueur $joueur) : array {
+    public function listerLesCommentairesDuJoueur(Joueur $joueur): array
+    {
         return $this->commentaires->selectCommentaireByJoueurId($joueur->getJoueurId());
     }
 
     // Supprime un commentaire à partir de son identifiant
-    public function supprimerCommentaire(string $commentaireId) : bool {
+    public function supprimerCommentaire(string $commentaireId): bool
+    {
         return $this->commentaires->deleteCommentaire($commentaireId);
     }
 }

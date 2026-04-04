@@ -8,7 +8,8 @@ use R301\Modele\Joueur\Joueur;
 use R301\Modele\Rencontre\Rencontre;
 
 // Classe représentant la participation d'un joueur à une rencontre, avec des informations sur son rôle (titulaire ou remplaçant), sa performance et son poste
-class Participation implements \JsonSerializable {
+class Participation implements \JsonSerializable
+{
     public int $participationId;
     public Joueur $participant;
     public readonly Rencontre $rencontre;
@@ -59,11 +60,13 @@ class Participation implements \JsonSerializable {
         return $this->titulaireOuRemplacant;
     }
 
-    public function estTitulaire() {
+    public function estTitulaire()
+    {
         return $this->titulaireOuRemplacant === TitulaireOuRemplacant::TITULAIRE;
     }
 
-    public function estRemplacant() {
+    public function estRemplacant()
+    {
         return $this->titulaireOuRemplacant === TitulaireOuRemplacant::REMPLACANT;
     }
 
@@ -72,7 +75,8 @@ class Participation implements \JsonSerializable {
         $this->titulaireOuRemplacant = $titulaireOuRemplacant;
     }
 
-    public function notePerformance(): int {
+    public function notePerformance(): int
+    {
         return $this->performance !== null ? $this->performance->value : 0;
     }
 
@@ -100,12 +104,12 @@ class Participation implements \JsonSerializable {
     public function jsonSerialize(): array
     {
         return [
-            'participationId'        => $this->participationId,
-            'participant'            => $this->participant,
-            'rencontre'              => $this->rencontre,
-            'titulaireOuRemplacant'  => $this->titulaireOuRemplacant->name,
-            'performance'            => $this->performance?->value,
-            'poste'                  => $this->poste->name
+            'participationId' => $this->participationId,
+            'participant' => $this->participant,
+            'rencontre' => $this->rencontre,
+            'titulaireOuRemplacant' => $this->titulaireOuRemplacant->name,
+            'performance' => $this->performance?->value,
+            'poste' => $this->poste->name
         ];
     }
 }

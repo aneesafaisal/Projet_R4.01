@@ -12,37 +12,43 @@ use R301\Modele\Participation\Poste;
 use R301\Modele\Participation\TitulaireOuRemplacant;
 
 // Contrôleur gérant les participations des joueurs aux matchs
-class ParticipationControleur {
+class ParticipationControleur
+{
     private static ?ParticipationControleur $instance = null;
     private readonly ParticipationDAO $participations;
     private readonly RencontreControleur $rencontres;
 
     // Constructeur privé pour empêcher l'instanciation directe
-    private function __construct() {
+    private function __construct()
+    {
         $this->participations = ParticipationDAO::getInstance();
         $this->rencontres = RencontreControleur::getInstance();
     }
 
     // Retourne l’instance unique
-    public static function getInstance(): ParticipationControleur {
+    public static function getInstance(): ParticipationControleur
+    {
         if (self::$instance == null) {
             self::$instance = new ParticipationControleur();
         }
         return self::$instance;
     }
-    
+
     // Vérifie si un joueur est déjà présent sur la feuille de match
-    public function lejoueurEstDejaSurLaFeuilleDeMatch(int $rencontreId, int $joueurId) : bool {
+    public function lejoueurEstDejaSurLaFeuilleDeMatch(int $rencontreId, int $joueurId): bool
+    {
         return $this->participations->lejoueurEstDejaSurLaFeuilleDeMatch($rencontreId, $joueurId);
     }
 
     // Liste toutes les participations
-    public function listerToutesLesParticipations() : array {
+    public function listerToutesLesParticipations(): array
+    {
         return $this->participations->selectAllParticipations();
     }
 
     // Récupère la feuille de match d’une rencontre
-    public function getFeuilleDeMatch(int $rencontreId) : FeuilleDeMatch {
+    public function getFeuilleDeMatch(int $rencontreId): FeuilleDeMatch
+    {
         return new FeuilleDeMatch($this->participations->selectParticipationsByRencontreId($rencontreId));
     }
 
@@ -52,10 +58,11 @@ class ParticipationControleur {
         int $rencontreId,
         Poste $poste,
         TitulaireOuRemplacant $titulaireOuRemplacant
-    ) : bool {
+    ): bool {
 
         // Vérifie si le poste est déjà occupé ou si le joueur est déjà sélectionné
-        if ($this->participations->lePosteEstDejaOccupe($rencontreId, $poste, $titulaireOuRemplacant)
+        if (
+            $this->participations->lePosteEstDejaOccupe($rencontreId, $poste, $titulaireOuRemplacant)
             || $this->lejoueurEstDejaSurLaFeuilleDeMatch($rencontreId, $joueurId)
         ) {
             return false;
@@ -83,7 +90,7 @@ class ParticipationControleur {
         Poste $poste,
         TitulaireOuRemplacant $titulaireOuRemplacant,
         int $joueurId
-    ) : bool {
+    ): bool {
         $participationAModifier = $this->participations->selectParticipationById($participationId);
 
         if ($participationAModifier->getParticipant()->getJoueurId() != $joueurId) {
@@ -97,7 +104,8 @@ class ParticipationControleur {
     }
 
     // Supprime une participation
-    public function supprimerLaParticipation(int $participationId) : bool {
+    public function supprimerLaParticipation(int $participationId): bool
+    {
         return $this->participations->deleteParticipation($participationId);
     }
 
@@ -105,7 +113,7 @@ class ParticipationControleur {
     public function mettreAJourLaPerformance(
         int $participationId,
         string $performance
-    ) : bool {
+    ): bool {
         $participationAEvaluer = $this->participations->selectParticipationById($participationId);
 
         if (!$participationAEvaluer->getRencontre()->estPassee()) {
@@ -117,7 +125,8 @@ class ParticipationControleur {
     }
 
     // Supprime la performance d’un joueur (si le match est passé)
-    public function supprimerLaPerformance(int $participationId) : bool {
+    public function supprimerLaPerformance(int $participationId): bool
+    {
         $participationAEvaluer = $this->participations->selectParticipationById($participationId);
 
         if (!$participationAEvaluer->getRencontre()->estPassee()) {

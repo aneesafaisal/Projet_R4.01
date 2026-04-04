@@ -41,8 +41,7 @@ CREATE TABLE `user` (
 INSERT INTO `user` (`id`, `login`, `password`, `role`) VALUES
 (1, 'aneesa', 'aneesa123', 'admin'),
 (2, 'admin', '$2y$10$.C3lBF.LTiPCZvHUh.KxB.tvYx9bZ5xg/.yLfNUy0.D9GwpXZHBLy', 'admin'),
-(3, 'coach', '$2y$10$nJMFL1UoFo99MnZfhKec9O4RmjXPf/e43MLx0M6a65kBTab2PqhNK', 'user'),
-(4, 'directeur', '$2y$10$fhcCpFfx9CccEJIbKSiH.OqZSBbO5N4mfzRDGTQ73jak6ppK/Duv2', 'user');
+(3, 'coach', '$2y$10$nJMFL1UoFo99MnZfhKec9O4RmjXPf/e43MLx0M6a65kBTab2PqhNK', 'user');
 
 --
 -- Indexes for dumped tables

@@ -75,6 +75,7 @@ try {
             );
             break;
 
+        // Gestion de la méthode PUT pour modifier une participation, en vérifiant les données reçues et en appelant le contrôleur pour mettre à jour la participation
         case 'PUT':
             if ($role !== 'admin' && $role !== 'coach') {
                 deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour modifier une participation");
@@ -100,7 +101,8 @@ try {
                 $success ? "Participation mise à jour" : "Erreur lors de la mise à jour (poste déjà occupé ou joueur déjà sur la feuille de match)"
             );
             break;
-
+            
+        // Gestion de la méthode DELETE pour supprimer une participation ou une performance, en vérifiant les paramètres de la requête et en appelant le contrôleur pour effectuer la suppression
         case 'DELETE':
             if ($role !== 'admin' && $role !== 'coach') {
                 deliver_response(403, "Accès refusé : vous n'avez pas les permissions nécessaires pour ajouter un joueur");

@@ -13,7 +13,7 @@ enum TitulaireOuRemplacant
     public static function fromName(string $name): ?TitulaireOuRemplacant
     {
         foreach (self::cases() as $status) {
-            if( $name === $status->name ){
+            if ($name === $status->name) {
                 return $status;
             }
         }

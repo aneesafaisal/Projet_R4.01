@@ -9,17 +9,20 @@ use PDO;
 use R301\Modele\DatabaseHandler;
 
 // Classe de gestion des opérations de base de données liées aux joueurs
-class JoueurDAO {
+class JoueurDAO
+{
     private static ?JoueurDAO $instance = null;
     private readonly DatabaseHandler $database;
 
     // Constructeur privé pour empêcher l'instanciation directe
-    private function __construct() {
+    private function __construct()
+    {
         $this->database = DatabaseHandler::getInstance();
     }
 
     // Méthode pour obtenir l'instance unique de JoueurDAO
-    public static function getInstance(): JoueurDAO {
+    public static function getInstance(): JoueurDAO
+    {
         if (self::$instance == null) {
             self::$instance = new JoueurDAO();
         }
@@ -27,7 +30,8 @@ class JoueurDAO {
     }
 
     // Méthode pour mapper une ligne de la base de données à un objet Joueur
-    private function mapToJoueur(array $dbLine): Joueur {
+    private function mapToJoueur(array $dbLine): Joueur
+    {
         return new Joueur(
             $dbLine['joueur_id'],
             $dbLine['nom'],
@@ -41,12 +45,14 @@ class JoueurDAO {
     }
 
     // Récupère la liste de tous les joueurs présents dans la base de données
-    public function selectAllJoueurs(): array {
+    public function selectAllJoueurs(): array
+    {
         $query = 'SELECT * FROM joueur';
-        $statement=$this->database->pdo()->prepare($query);
-        if ($statement->execute()){
+        $statement = $this->database->pdo()->prepare($query);
+        if ($statement->execute()) {
             return array_map(
-                function($joueur) { return $this->mapToJoueur($joueur); },
+                function ($joueur) {
+                    return $this->mapToJoueur($joueur); },
                 $statement->fetchAll(PDO::FETCH_ASSOC)
             );
         } else {
@@ -55,13 +61,15 @@ class JoueurDAO {
     }
 
     // Récupère la liste des joueurs correspondant à un statut donné
-    public function selectJoueursByStatut(JoueurStatut $statut): array {
+    public function selectJoueursByStatut(JoueurStatut $statut): array
+    {
         $query = 'SELECT * FROM joueur WHERE statut = :statut';
-        $statement=$this->database->pdo()->prepare($query);
+        $statement = $this->database->pdo()->prepare($query);
         $statement->bindValue(':statut', $statut->name);
-        if ($statement->execute()){
+        if ($statement->execute()) {
             return array_map(
-                function($joueur) { return $this->mapToJoueur($joueur); },
+                function ($joueur) {
+                    return $this->mapToJoueur($joueur); },
                 $statement->fetchAll(PDO::FETCH_ASSOC)
             );
         } else {
@@ -70,24 +78,26 @@ class JoueurDAO {
     }
 
     // Récupère un joueur à partir de son identifiant
-     public function selectJoueurById(int $joueurId): ?Joueur {
+    public function selectJoueurById(int $joueurId): ?Joueur
+    {
         $query = 'SELECT * FROM joueur WHERE joueur_id = :joueur_id';
-        $statement=$this->database->pdo()->prepare($query);
+        $statement = $this->database->pdo()->prepare($query);
         $statement->bindValue(':joueur_id', $joueurId);
-        if ($statement->execute()){
-             return $this->mapToJoueur($statement->fetch(PDO::FETCH_ASSOC));
+        if ($statement->execute()) {
+            return $this->mapToJoueur($statement->fetch(PDO::FETCH_ASSOC));
         } else {
             exit();
         }
     }
 
     // Insère un nouveau joueur dans la base de données
-    public function insertJoueur(Joueur $joueurACreer): bool {
+    public function insertJoueur(Joueur $joueurACreer): bool
+    {
         $query = '
             INSERT INTO joueur(numero_licence,nom,prenom,date_naissance,taille,poids,statut)
             VALUES (:numero_licence,:nom,:prenom,:date_naissance,:taille,:poids,:statut)
         ';
-        $statement=$this->database->pdo()->prepare($query);
+        $statement = $this->database->pdo()->prepare($query);
         $statement->bindValue(':numero_licence', $joueurACreer->getNumeroDeLicence());
         $statement->bindValue(':nom', $joueurACreer->getNom());
         $statement->bindValue(':prenom', $joueurACreer->getPrenom());
@@ -100,7 +110,8 @@ class JoueurDAO {
     }
 
     // Modifie les informations d’un joueur dans la base de données
-    public function updateJoueur(Joueur $joueurAModifier): bool {
+    public function updateJoueur(Joueur $joueurAModifier): bool
+    {
         $query = 'UPDATE joueur 
                   SET 
                     nom = :nom ,
@@ -111,7 +122,7 @@ class JoueurDAO {
                     poids = :poids,
                     statut = :statut
                   WHERE joueur_id = :joueur_id';
-        $statement=$this->database->pdo()->prepare($query);
+        $statement = $this->database->pdo()->prepare($query);
 
         $statement->bindValue(':joueur_id', $joueurAModifier->getJoueurId());
         $statement->bindValue(':numero_licence', $joueurAModifier->getNumeroDeLicence());
@@ -126,7 +137,8 @@ class JoueurDAO {
     }
 
     // Supprime un joueur de la base de données à partir de son identifiant
-    public function supprimerJoueur(string $joueurId) : bool {
+    public function supprimerJoueur(string $joueurId): bool
+    {
         $deleteParticipations = 'DELETE FROM participation WHERE joueur_id = :joueur_id';
         $statement = $this->database->pdo()->prepare($deleteParticipations);
         $statement->bindValue(':joueur_id', $joueurId);
