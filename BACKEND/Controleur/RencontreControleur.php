@@ -40,14 +40,15 @@ class RencontreControleur
         RencontreLieu $lieu
     ): bool {
 
-        if ($dateHeure < date("Y-m-d H:i:s")) {
+        if ($dateHeure < new DateTime()) {
             return false;
         } else {
             $rencontreAAjouter = new Rencontre(
                 $dateHeure,
                 $equipeAdverse,
                 $adresse,
-                $lieu
+                $lieu,
+                null
             );
 
             // Insertion en base

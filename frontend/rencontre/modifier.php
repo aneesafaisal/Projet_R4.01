@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         exit;
     } else {
         error_log("Erreur lors de la modification de la rencontre");
+        exit;
     }
 } else {
     if (!isset($_GET['id'])) {
@@ -50,6 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     $formulaire->setText("Adresse", "adresse", "", $rencontre['adresse']);
     $formulaire->setSelect("Lieu", ['DOMICILE', 'EXTERIEUR'], "lieu", $rencontre['lieu']);
 
-    $formulaire->addButton("Submit", "update", "modifier", "Modifier");
+    $formulaire->addButton("submit", "update", "modifier", "Modifier");
     echo $formulaire;
 }
