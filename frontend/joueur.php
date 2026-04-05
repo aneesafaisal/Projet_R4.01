@@ -5,12 +5,10 @@ use R301\Controleur\JoueurControleur;
 $controleur = JoueurControleur::getInstance();
 
 if (isset($_GET['recherche']) || isset($_GET['statut'])) {
-    $joueurs = $controleur->rechercherLesJoueurs($_GET['recherche'],$_GET['statut']);
+    $joueurs = $controleur->rechercherLesJoueurs($_GET['recherche'], $_GET['statut']);
 } else {
     $joueurs = $controleur->listerTousLesJoueurs();
 }
-echo "hello";
-var_dump($data);
 ?>
 
 <h1>Joueurs</h1>
@@ -19,14 +17,15 @@ var_dump($data);
         <div class="row">
             <div class="invCol-80">
                 <input type="search" name="recherche" placeholder="Rechercher"
-                    value="<?= htmlspecialchars($_GET['recherche'] ?? '') ?>"/>
+                    value="<?= htmlspecialchars($_GET['recherche'] ?? '') ?>" />
             </div>
         </div>
         <div class="row">
             <div class="invCol-80">
                 <select name="statut" id="statut">
                     <option value="">Tous</option>
-                    <option value="ACTIF" <?= (isset($_GET['statut']) && $_GET['statut'] === "ACTIF") ? 'selected' : '' ?>>Actif</option>
+                    <option value="ACTIF" <?= (isset($_GET['statut']) && $_GET['statut'] === "ACTIF") ? 'selected' : '' ?>>
+                        Actif</option>
                     <option value="BLESSE" <?= (isset($_GET['statut']) && $_GET['statut'] === "BLESSE") ? 'selected' : '' ?>>Blessé</option>
                     <option value="ABSENT" <?= (isset($_GET['statut']) && $_GET['statut'] === "ABSENT") ? 'selected' : '' ?>>Absent</option>
                     <option value="SUSPENDU" <?= (isset($_GET['statut']) && $_GET['statut'] === "SUSPENDU") ? 'selected' : '' ?>>Suspendu</option>
@@ -63,12 +62,10 @@ var_dump($data);
                 <td><?= htmlspecialchars($joueur['statut']) ?></td>
                 <td class="actions">
                     <form action="joueur/modifier" method="get">
-                        <button class="update" type="submit" name="id"
-                            value="<?= $joueur['joueurId'] ?>">Modifier</button>
+                        <button class="update" type="submit" name="id" value="<?= $joueur['joueurId'] ?>">Modifier</button>
                     </form>
                     <form action="joueur/supprimer" method="post">
-                        <button class="delete" type="submit" name="id"
-                            value="<?= $joueur['joueurId'] ?>"
+                        <button class="delete" type="submit" name="id" value="<?= $joueur['joueurId'] ?>"
                             onclick="return confirm('Voulez-vous vraiment supprimer ce joueur?')">
                             Supprimer
                         </button>
