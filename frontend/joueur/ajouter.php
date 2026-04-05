@@ -4,7 +4,8 @@
 use R301\Controleur\JoueurControleur;
 use R301\Component\Formulaire;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST'
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['nom'])
     && isset($_POST['prenom'])
     && isset($_POST['numeroDeLicence'])
@@ -40,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     $formulaire->setText("Taille (en cm)", "tailleEnCm");
     $formulaire->setText("Poids (en kg)", "poidsEnKg");
     $formulaire->setSelect("Statut", ['ACTIF', 'BLESSE', 'ABSENT', 'SUSPENDU'], "statut");
-    
+
     $formulaire->addButton("Submit", "create", "valider", "Valider");
     echo $formulaire;
 }

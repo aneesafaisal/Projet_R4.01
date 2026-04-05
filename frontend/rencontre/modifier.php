@@ -6,16 +6,17 @@ use R301\Component\Formulaire;
 
 $controleur = RencontreControleur::getInstance();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST'
-        && isset($_GET['id'])
-        && isset($_POST['dateHeure'])
-        && isset($_POST['equipeAdverse'])
-        && isset($_POST['adresse'])
-        && isset($_POST['lieu'])
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_GET['id'])
+    && isset($_POST['dateHeure'])
+    && isset($_POST['equipeAdverse'])
+    && isset($_POST['adresse'])
+    && isset($_POST['lieu'])
 ) {
     if (
         $controleur->modifierRencontre(
-            (int)$_GET['id'],
+            (int) $_GET['id'],
             $_POST['dateHeure'],
             $_POST['equipeAdverse'],
             $_POST['adresse'],
@@ -34,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         exit;
     }
 
-    $rencontre = $controleur->getRencontreById((int)$_GET['id']);
+    $rencontre = $controleur->getRencontreById((int) $_GET['id']);
 
     if ($rencontre === null) {
         header('Location: ' . BASE_URL . '/rencontre');

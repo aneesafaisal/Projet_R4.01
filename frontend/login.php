@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["username"]) && isset(
                 </div>
             </div>
             <div class="row">
-                <input type="submit" value="Se connecter"/>
+                <input type="submit" value="Se connecter" />
             </div>
         </form>
     </div>

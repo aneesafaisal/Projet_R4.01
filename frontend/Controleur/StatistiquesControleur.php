@@ -3,13 +3,15 @@
 namespace R301\Controleur;
 
 // Contrôleur dédié au calcul des statistiques
-class StatistiquesControleur {
+class StatistiquesControleur
+{
     private static ?StatistiquesControleur $instance = null;
     private string $apiUrl = "https://equipe.alwaysdata.net/EndpointStatistiques.php";
     private string $token = "";
 
     // Constructeur privé (ajout minimal pour charger le token)
-    private function __construct() {
+    private function __construct()
+    {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -17,30 +19,33 @@ class StatistiquesControleur {
     }
 
     // Retourne l'instance unique du contrôleur
-    public static function getInstance(): StatistiquesControleur {
+    public static function getInstance(): StatistiquesControleur
+    {
         if (self::$instance == null) {
             self::$instance = new StatistiquesControleur();
         }
         return self::$instance;
     }
 
-    // === TA FONCTION callAPI : MODIFIÉE AU MINIMUM ===
-    private function callAPI() {
+    // Fonction générique pour appeler l'API du backend
+    private function callAPI()
+    {
         $options = [
             'http' => [
-                'method'        => 'GET',
+                'method' => 'GET',
                 'ignore_errors' => true,
-                'header'        => "Content-Type: application/json\r\n" .
-                                   "Authorization: Bearer " . $this->token . "\r\n"
+                'header' => "Content-Type: application/json\r\n" .
+                    "Authorization: Bearer " . $this->token . "\r\n"
             ]
         ];
-        $context  = stream_context_create($options);
+        $context = stream_context_create($options);
         $response = file_get_contents($this->apiUrl, false, $context);
         return json_decode($response, true);
     }
 
     // Récupère les statistiques globales de l'équipe (calcul à partir des données brutes)
-    public function getStatistiquesEquipe() {
+    public function getStatistiquesEquipe()
+    {
         $res = $this->callAPI();
 
         if (($res['status_code'] ?? 0) !== 200) {
@@ -50,15 +55,19 @@ class StatistiquesControleur {
         $rencontres = $res['data']['statistiques_equipe']['rencontres'] ?? [];
 
         $victoires = 0;
-        $nuls      = 0;
-        $defaites  = 0;
+        $nuls = 0;
+        $defaites = 0;
 
         foreach ($rencontres as $r) {
-            if (empty($r['resultat'])) continue;
+            if (empty($r['resultat']))
+                continue;
             $resultat = strtoupper($r['resultat']);
-            if ($resultat === 'VICTOIRE') $victoires++;
-            elseif ($resultat === 'NUL') $nuls++;
-            elseif ($resultat === 'DEFAITE') $defaites++;
+            if ($resultat === 'VICTOIRE')
+                $victoires++;
+            elseif ($resultat === 'NUL')
+                $nuls++;
+            elseif ($resultat === 'DEFAITE')
+                $defaites++;
         }
 
         $total = $victoires + $nuls + $defaites;
@@ -67,17 +76,18 @@ class StatistiquesControleur {
         $pourcD = $total > 0 ? round(($defaites / $total) * 100) : 0;
 
         return [
-            'nbVictoires'            => $victoires,
-            'nbNuls'                 => $nuls,
-            'nbDefaites'             => $defaites,
+            'nbVictoires' => $victoires,
+            'nbNuls' => $nuls,
+            'nbDefaites' => $defaites,
             'pourcentageDeVictoires' => $pourcV,
-            'pourcentageDeNuls'      => $pourcN,
-            'pourcentageDeDefaites'  => $pourcD,
+            'pourcentageDeNuls' => $pourcN,
+            'pourcentageDeDefaites' => $pourcD,
         ];
     }
 
     // Récupère les statistiques des joueurs (calcul à partir des données brutes)
-    public function getStatistiquesJoueurs() {
+    public function getStatistiquesJoueurs()
+    {
         $res = $this->callAPI();
 
         if (($res['status_code'] ?? 0) !== 200) {
@@ -93,15 +103,15 @@ class StatistiquesControleur {
 
             if (!isset($statsParJoueur[$id])) {
                 $statsParJoueur[$id] = [
-                    'joueur'                      => $j,
-                    'posteLePlusPerformant'       => $p['poste'] ?? '',
-                    'nbRencontresConsecutivesADate'=> 0,
-                    'nbTitularisations'           => 0,
-                    'nbRemplacant'                => 0,
-                    'moyenneDesEvaluations'       => 0,
-                    'pourcentageDeMatchsGagnes'   => 0,
-                    'totalMatchs'                 => 0,
-                    'victoires'                   => 0,
+                    'joueur' => $j,
+                    'posteLePlusPerformant' => $p['poste'] ?? '',
+                    'nbRencontresConsecutivesADate' => 0,
+                    'nbTitularisations' => 0,
+                    'nbRemplacant' => 0,
+                    'moyenneDesEvaluations' => 0,
+                    'pourcentageDeMatchsGagnes' => 0,
+                    'totalMatchs' => 0,
+                    'victoires' => 0,
                 ];
             }
 
@@ -117,12 +127,12 @@ class StatistiquesControleur {
             // Moyenne des évaluations
             if (!empty($p['performance'])) {
                 $valeur = match (strtoupper($p['performance'])) {
-                    'EXCELLENTE'     => 5,
-                    'BONNE'          => 4,
-                    'MOYENNE'        => 3,
-                    'MAUVAISE'       => 2,
+                    'EXCELLENTE' => 5,
+                    'BONNE' => 4,
+                    'MOYENNE' => 3,
+                    'MAUVAISE' => 2,
                     'CATASTROPHIQUE' => 1,
-                    default          => 0,
+                    default => 0,
                 };
                 $s['moyenneDesEvaluations'] = ($s['moyenneDesEvaluations'] * ($s['totalMatchs'] - 1) + $valeur) / $s['totalMatchs'];
             }

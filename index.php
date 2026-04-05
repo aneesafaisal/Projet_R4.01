@@ -14,7 +14,7 @@ if (preg_match('/\.(?:png|jpg|jpeg|gif|ico|css|js)\??.*$/', $_SERVER["REQUEST_UR
     return false;
 }
 
-session_start(); 
+session_start();
 
 $uri = strtok($_SERVER["REQUEST_URI"], '?');
 $uri = str_replace(BASE_URL, '', $uri);
@@ -31,14 +31,16 @@ if ($uri !== "/login" && !isset($_SESSION['username'])) {
 
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <title>R3.01</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8"/>
-        <link rel="stylesheet" href="<?= BASE_URL ?>/stylesheet.css"/>
-        <link rel="icon" type="image/jpg" href="<?= BASE_URL ?>/favicon.jpg">
-    </head>
-    <body>
-    <?php if ($uri !== '/login') : ?>
+
+<head>
+    <title>R3.01</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>/stylesheet.css" />
+    <link rel="icon" type="image/jpg" href="<?= BASE_URL ?>/favicon.jpg">
+</head>
+
+<body>
+    <?php if ($uri !== '/login'): ?>
         <nav class="navbar">
             <a href="<?= BASE_URL ?>/tableauDeBord" class="dropbtn">Tableau de bord</a>
             <div class="dropdown">
@@ -58,7 +60,8 @@ if ($uri !== "/login" && !isset($_SESSION['username'])) {
         </nav>
     <?php endif; ?>
     <?php
-        require_once __DIR__ . '/frontend' . $uri . '.php';
+    require_once __DIR__ . '/frontend' . $uri . '.php';
     ?>
-    </body>
+</body>
+
 </html>

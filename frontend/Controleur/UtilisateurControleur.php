@@ -4,12 +4,14 @@
 namespace R301\Controleur;
 
 // Contrôleur gérant l’authentification des utilisateurs
-class UtilisateurControleur {
+class UtilisateurControleur
+{
     private static ?UtilisateurControleur $instance = null;
     private string $authApiUrl = "https://auth.alwaysdata.net/EndpointAuth.php";
     private string $token;
-    
-    private function __construct() {
+
+    private function __construct()
+    {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -17,7 +19,8 @@ class UtilisateurControleur {
     }
 
     // Retourne l’instance unique du contrôleur
-    public static function getInstance(): UtilisateurControleur {
+    public static function getInstance(): UtilisateurControleur
+    {
         if (self::$instance === null) {
             self::$instance = new UtilisateurControleur();
         }
@@ -26,7 +29,8 @@ class UtilisateurControleur {
 
     // Permet d'appeler l'API du backend
     // On a au début utilisé cette Fonction pour les appels a l'API 
-    private function callAPI(string $method, string $url, array $data = null, bool $withToken = false): ?array {
+    private function callAPI(string $method, string $url, ?array $data = null, bool $withToken = false): ?array
+    {
         $curl = curl_init();
 
         switch ($method) {
@@ -54,19 +58,21 @@ class UtilisateurControleur {
         $result = curl_exec($curl);
         curl_close($curl);
 
-        if (!$result) return null;
+        if (!$result)
+            return null;
 
         return json_decode($result, true);
     }
 
     // Permet à un utilisateur de se connecter en vérifiant ses identifiants
-    public function seConnecter(string $username, string $password): bool {
+    public function seConnecter(string $username, string $password): bool
+    {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
         $data = [
-            "login"    => $username,
+            "login" => $username,
             "password" => $password
         ];
 
@@ -79,17 +85,17 @@ class UtilisateurControleur {
         $jwt = $response["token"];
 
         // Stockage en session + cookie
-        $_SESSION['token']    = $jwt;
+        $_SESSION['token'] = $jwt;
         $_SESSION['username'] = $username;
 
         setcookie(
             "token",
             $jwt,
             [
-                "expires"  => time() + 3600,
-                "path"     => "/",
+                "expires" => time() + 3600,
+                "path" => "/",
                 "httponly" => true,
-                "secure"   => false,
+                "secure" => false,
                 "samesite" => "Strict"
             ]
         );
@@ -101,7 +107,8 @@ class UtilisateurControleur {
     }
 
     // Permet de se deconnecter
-    public function seDeconnecter(): void {
+    public function seDeconnecter(): void
+    {
         setcookie("token", "", time() - 3600, "/");
 
         if (session_status() === PHP_SESSION_NONE) {

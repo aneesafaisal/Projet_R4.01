@@ -48,16 +48,17 @@ $statistiquesJoueurs = $controleur->getStatistiquesJoueurs();
             <th style="width:7%;">Pourcentage gagnés</th>
         </tr>
         <?php foreach ($statistiquesJoueurs as $stat): ?>
-        <tr>
-            <td><?= htmlspecialchars($stat['joueur']['nom'] ?? '') . ' ' . htmlspecialchars($stat['joueur']['prenom'] ?? '') ?></td>
-            <td><?= htmlspecialchars($stat['joueur']['statut'] ?? '') ?></td>
-            <td><?= htmlspecialchars($stat['posteLePlusPerformant'] ?? '') ?></td>
-            <td><?= $stat['nbRencontresConsecutivesADate'] ?? 0 ?></td>
-            <td><?= $stat['nbTitularisations'] ?? 0 ?></td>
-            <td><?= $stat['nbRemplacant'] ?? 0 ?></td>
-            <td><?= $stat['moyenneDesEvaluations'] ?? 0 ?></td>
-            <td><?= $stat['pourcentageDeMatchsGagnes'] ?? 0 ?>%</td>
-        </tr>
+            <tr>
+                <td><?= htmlspecialchars($stat['joueur']['nom'] ?? '') . ' ' . htmlspecialchars($stat['joueur']['prenom'] ?? '') ?>
+                </td>
+                <td><?= htmlspecialchars($stat['joueur']['statut'] ?? '') ?></td>
+                <td><?= htmlspecialchars($stat['posteLePlusPerformant'] ?? '') ?></td>
+                <td><?= $stat['nbRencontresConsecutivesADate'] ?? 0 ?></td>
+                <td><?= $stat['nbTitularisations'] ?? 0 ?></td>
+                <td><?= $stat['nbRemplacant'] ?? 0 ?></td>
+                <td><?= $stat['moyenneDesEvaluations'] ?? 0 ?></td>
+                <td><?= $stat['pourcentageDeMatchsGagnes'] ?? 0 ?>%</td>
+            </tr>
         <?php endforeach; ?>
     </table>
 </div>

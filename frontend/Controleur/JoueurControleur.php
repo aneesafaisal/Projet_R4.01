@@ -4,18 +4,21 @@
 namespace R301\Controleur;
 
 // Contrôleur gérant les opérations liées aux joueurs
-class JoueurControleur {
+class JoueurControleur
+{
     private static ?JoueurControleur $instance = null;
     private string $apiUrl = "https://equipe.alwaysdata.net/EndpointJoueur.php";
-    
-    private function __construct() {
+
+    private function __construct()
+    {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
-        } 
+        }
     }
 
     // Retourne l’instance unique du contrôleur
-    public static function getInstance(): JoueurControleur {
+    public static function getInstance(): JoueurControleur
+    {
         if (self::$instance === null) {
             self::$instance = new JoueurControleur();
         }
@@ -24,7 +27,8 @@ class JoueurControleur {
 
     // Permet d'appeler l'API du backend
     // On a au début utilisé cette Fonction pour les appels a l'API 
-    private function callAPI(string $method, string $url, ?array $data = null): ?array {
+    private function callAPI(string $method, string $url, ?array $data = null): ?array
+    {
         $token = $_SESSION['token'] ?? '';
         $curl = curl_init();
 
@@ -97,13 +101,13 @@ class JoueurControleur {
         string $statut
     ): bool {
         $data = [
-            'nom'             => $nom,
-            'prenom'          => $prenom,
+            'nom' => $nom,
+            'prenom' => $prenom,
             'numeroDeLicence' => $numeroDeLicence,
             'dateDeNaissance' => $dateDeNaissance, // format "Y-m-d"
-            'tailleEnCm'      => $tailleEnCm,
-            'poidsEnKg'       => $poidsEnKg,
-            'statut'          => $statut
+            'tailleEnCm' => $tailleEnCm,
+            'poidsEnKg' => $poidsEnKg,
+            'statut' => $statut
         ];
 
         $response = $this->callAPI("POST", $this->apiUrl, $data);
@@ -112,7 +116,8 @@ class JoueurControleur {
     }
 
     // Récupère un joueur par son identifiant
-    public function getJoueurById(int $id): ?array {
+    public function getJoueurById(int $id): ?array
+    {
         $response = $this->callAPI("GET", $this->apiUrl, ['id' => $id]);
 
         if ($response === null || $response['status_code'] !== 200) {
@@ -123,15 +128,18 @@ class JoueurControleur {
     }
 
     // Liste les joueurs actifs pouvant être sélectionnés pour un match
-    public function listerLesJoueursSelectionnablesPourUnMatch(int $rencontreId): array {
+    public function listerLesJoueursSelectionnablesPourUnMatch(int $rencontreId): array
+    {
         $tous = $this->listerTousLesJoueurs();
         $selectionnables = [];
         $participationCtrl = ParticipationControleur::getInstance();
 
         foreach ($tous as $joueur) {
-            if (($joueur['statut'] ?? '') === 'ACTIF' &&
-                !$participationCtrl->lejoueurEstDejaSurLaFeuilleDeMatch($rencontreId, $joueur['joueurId'])) {
-                
+            if (
+                ($joueur['statut'] ?? '') === 'ACTIF' &&
+                !$participationCtrl->lejoueurEstDejaSurLaFeuilleDeMatch($rencontreId, $joueur['joueurId'])
+            ) {
+
                 $selectionnables[] = $joueur;
             }
         }
@@ -140,9 +148,10 @@ class JoueurControleur {
     }
 
     // Récupère tous les joueurs
-    public function listerTousLesJoueurs(): array {
+    public function listerTousLesJoueurs(): array
+    {
         $response = $this->callAPI("GET", $this->apiUrl);
-        
+
         if ($response === null || $response['status_code'] !== 200) {
             return [];
         }
@@ -162,13 +171,13 @@ class JoueurControleur {
         string $statut
     ): bool {
         $data = [
-            'nom'             => $nom,
-            'prenom'          => $prenom,
+            'nom' => $nom,
+            'prenom' => $prenom,
             'numeroDeLicence' => $numeroDeLicence,
             'dateDeNaissance' => $dateDeNaissance,
-            'tailleEnCm'      => $tailleEnCm,
-            'poidsEnKg'       => $poidsEnKg,
-            'statut'          => $statut
+            'tailleEnCm' => $tailleEnCm,
+            'poidsEnKg' => $poidsEnKg,
+            'statut' => $statut
         ];
 
         $response = $this->callAPI("PUT", $this->apiUrl . "?id=" . $id, $data);
@@ -177,14 +186,16 @@ class JoueurControleur {
     }
 
     // Supprime un joueur
-    public function supprimerJoueur(int $id): bool {
+    public function supprimerJoueur(int $id): bool
+    {
         $response = $this->callAPI("DELETE", $this->apiUrl . "?id=" . $id);
 
         return $response !== null && $response['status_code'] === 200;
     }
 
     // on filtre côté frontend
-    public function rechercherLesJoueurs(string $recherche, string $statut): array {
+    public function rechercherLesJoueurs(string $recherche, string $statut): array
+    {
         $tous = $this->listerTousLesJoueurs();
         $resultats = [];
 
@@ -192,7 +203,7 @@ class JoueurControleur {
             $conserver = true;
 
             if ($recherche !== "") {
-                $nomContient    = str_contains(strtolower($joueur['nom']),    strtolower($recherche));
+                $nomContient = str_contains(strtolower($joueur['nom']), strtolower($recherche));
                 $prenomContient = str_contains(strtolower($joueur['prenom']), strtolower($recherche));
                 $conserver = $nomContient || $prenomContient;
             }

@@ -6,23 +6,26 @@ use R301\Controleur\ParticipationControleur;
 
 $controleur = ParticipationControleur::getInstance();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST'
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['action'])
     && isset($_POST['poste'])
     && isset($_POST['titulaireOuRemplacant'])
     && isset($_POST['rencontreId'])
 ) {
-    $rencontreId = (int)$_POST['rencontreId'];
+    $rencontreId = (int) $_POST['rencontreId'];
 
     switch ($_POST['action']) {
         case "create":
             if (isset($_POST['joueurId']) && $_POST['joueurId'] !== "") {
-                if (!$controleur->assignerUnParticipant(
-                    (int)$_POST['joueurId'],
-                    $rencontreId,
-                    $_POST['poste'],
-                    $_POST['titulaireOuRemplacant'] 
-                )) {
+                if (
+                    !$controleur->assignerUnParticipant(
+                        (int) $_POST['joueurId'],
+                        $rencontreId,
+                        $_POST['poste'],
+                        $_POST['titulaireOuRemplacant']
+                    )
+                ) {
                     error_log("Erreur lors de l'ajout d'une participation");
                 }
             }
@@ -30,12 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
         case "update":
             if (isset($_POST['participationId']) && isset($_POST['joueurId']) && $_POST['joueurId'] !== "") {
-                if (!$controleur->modifierParticipation(
-                    (int)$_POST['participationId'],
-                    $_POST['poste'],
-                    $_POST['titulaireOuRemplacant'],
-                    (int)$_POST['joueurId']
-                )) {
+                if (
+                    !$controleur->modifierParticipation(
+                        (int) $_POST['participationId'],
+                        $_POST['poste'],
+                        $_POST['titulaireOuRemplacant'],
+                        (int) $_POST['joueurId']
+                    )
+                ) {
                     error_log("Erreur lors de la modification de la participation");
                 }
             }
@@ -43,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
         case "delete":
             if (isset($_POST['participationId'])) {
-                if (!$controleur->supprimerLaParticipation((int)$_POST['participationId'])) {
+                if (!$controleur->supprimerLaParticipation((int) $_POST['participationId'])) {
                     error_log("Erreur lors de la suppression de la participation");
                 }
             }
