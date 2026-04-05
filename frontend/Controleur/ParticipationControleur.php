@@ -19,7 +19,7 @@ class ParticipationControleur {
         return self::$instance;
     }
 
-    private function callAPI(string $method, string $url, array $data = null): ?array {
+    private function callAPI(string $method, string $url, ?array $data = null): ?array {
         $token = $_SESSION['token'] ?? '';
         $curl = curl_init();
 
