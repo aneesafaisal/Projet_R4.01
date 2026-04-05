@@ -34,7 +34,7 @@ class Formulaire {
                                 </div>
                             </div>';
     }
-    public function setDateTime($description, $name, string $min = null, $value = "") {
+    public function setDateTime($description, $name, ?string $min = null, $value = "") {
         $this->formulaire .= "<div class=\"row\">
                                 <div class=\"col-20\">
                                     <label>$description</label>
